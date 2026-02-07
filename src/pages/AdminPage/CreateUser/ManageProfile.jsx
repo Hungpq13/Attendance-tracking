@@ -31,7 +31,7 @@ function ManageProfile() {
       setUserName(data.userName || "");
     } catch (error) {
       console.error("Error loading profile:", error);
-      // Sử dụng dữ liệu mặc định nếu API lỗi
+      // Use default data if API error
       setFirstName("Hưng");
       setLastName("Phạm");
       setBirthDate("2003-09-13");

@@ -49,7 +49,7 @@ function Main() {
       }
     } catch (error) {
       console.error('❌ Logout API error:', error);
-      // Vẫn tiếp tục logout local even nếu API error
+      // Continue with local logout even if API error
     } finally {
       // Clear all auth data from localStorage
       localStorage.removeItem(STORAGE_USER);
@@ -57,7 +57,7 @@ function Main() {
       localStorage.removeItem(STORAGE_REFRESH_TOKEN);
       
       // Debug log
-      console.log('✅ Local logout thành công!');
+      console.log('✅ Local logout successful!');
       console.log('🗑️  Cleared localStorage: user, token, refreshToken');
       
       // Redirect to login

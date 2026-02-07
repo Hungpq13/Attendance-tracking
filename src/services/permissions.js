@@ -58,17 +58,17 @@ export const getAccessibleFeatures = () => {
   
   const features = {
     admin: [
-      'manageProfile',      // Tạo tài khoản người dùng
-      'inputWorkDay',       // Nhập ngày công
-      'viewWorkDayTable',   // Xem bảng chấm công
-      'manageAccount',      // Quản lý tài khoản
-      'editProfile',        // Chỉnh sửa profile
+      'manageProfile',      // Create user account
+      'inputWorkDay',       // Input work days
+      'viewWorkDayTable',   // View attendance table
+      'manageAccount',      // Manage account
+      'editProfile',        // Edit profile
     ],
     hr: [
-      'viewWorkDayTable',   // Chỉ được xem bảng chấm công
+      'viewWorkDayTable',   // Can only view attendance table
     ],
     user: [
-      'viewWorkDayTable',   // Chỉ được xem bảng chấm công
+      'viewWorkDayTable',   // Can only view attendance table
     ],
   };
   

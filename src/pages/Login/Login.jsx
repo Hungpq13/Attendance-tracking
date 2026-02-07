@@ -35,21 +35,21 @@ function Login() {
       if (response.message === 'Login successful.' && token) {
         console.log('✅ Login successful!');
         
-        // Lưu access token
+        // Save access token
         localStorage.setItem(STORAGE_TOKEN, token);
         
-        // Lưu refresh token từ response nếu có
+        // Save refresh token from response if available
         if (response.refreshToken) {
           console.log('💾 Saving refreshToken...');
           localStorage.setItem(STORAGE_REFRESH_TOKEN, response.refreshToken);
         }
         
-        // Decode token để lấy thông tin user
+        // Decode token to get user information
         const decoded = decodeToken(token);
         console.log('🔓 Decoded Token:', decoded);
         
         if (decoded && decoded.unique_name) {
-          // Lưu user info từ token
+          // Save user info from token
           localStorage.setItem(STORAGE_USER, JSON.stringify({
             id: decoded.sub,
             username: decoded.unique_name,
@@ -58,7 +58,7 @@ function Login() {
           }));
           
           console.log('🎯 Redirecting to /main...');
-          // Chuyển đến trang admin
+          // Navigate to admin page
           navigate('/main', { replace: true });
         } else {
           throw new Error('Invalid token format');
