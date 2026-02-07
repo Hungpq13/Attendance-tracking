@@ -9,18 +9,21 @@ import './ProfilePage.css';
 
 function ProfilePage() {
   const userRole = getUserRole();
+  const isAdmin = userRole === USER_ROLES.ADMIN;
   const isHR = userRole === USER_ROLES.HR;
+  const isUser = userRole === USER_ROLES.USER;
   
-  // HR users should start with viewWorkDayTable (option 3)
-  const initialActive = isHR ? "3" : "1";
-  const initialPage = isHR ? <WorkDayTable /> : <ManageProfile />;
+  // HR and regular users should start with viewWorkDayTable (option 3)
+  // Admin starts with manageProfile (option 1)
+  const initialActive = isAdmin ? "1" : "3";
+  const initialPage = isAdmin ? <ManageProfile /> : <WorkDayTable />;
   
   const [page, setPage] = useState(initialPage);
   const [active, setActive] = useState(initialActive);
 
   const handlePageChange = (e) => {
-    // HR users can only view work day table
-    if (isHR) {
+    // Only admins can navigate between pages
+    if (!isAdmin) {
       return;
     }
     
