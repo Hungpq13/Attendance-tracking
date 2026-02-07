@@ -53,17 +53,26 @@
 
 .save-button {
   height: 40px;
-  width: 100px;
+  width: 110px;
   border-radius: 6px;
   background-color: #1173be;
   color: white;
   border: none;
   cursor: pointer;
+  text-align: center;
   font-weight: 600;
 }
 
 .save-button:hover {
   filter: brightness(1.25);
+}
+
+.change-password-button {
+
+  
+  font-size: 0.8rem;
+
+
 }
 
 /* Modal Styles */
@@ -78,10 +87,30 @@
 }
 
 .modal-content {
-  width: 50%;
+  width: 70%;
+  min-width: 600px;
   border-radius: 6px;
   background-color: white;
   padding: 2rem;
+}
+
+.modal-input-row {
+  gap: 1rem !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+}
+
+.modal-input-row .form-group {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.password-input {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 150px !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
 }
 
 .modal-header {

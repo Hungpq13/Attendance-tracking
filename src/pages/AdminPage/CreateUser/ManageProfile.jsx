@@ -94,7 +94,7 @@ function ManageProfile() {
               className="confirm-button"
               onClick={saveChangesHandler}
             >
-              Xác nhận
+             OK
             </button>
           </div>
         </div>

@@ -145,4 +145,16 @@ export const authAPI = {
       throw error.response?.data || error.message;
     }
   },
+  changePassword: async (oldPassword, newPassword, confirmNewPassword) => {
+    try {
+      const response = await authAxios.post('/auth/change-password', {
+        oldPassword,
+        newPassword,
+        confirmNewPassword,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };

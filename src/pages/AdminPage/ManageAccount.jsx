@@ -7,8 +7,6 @@ function ManageAccount({ active, handlePageChange }) {
   
   // Only admins can access all features
   const isAdmin = userRole === USER_ROLES.ADMIN;
-  const isHR = userRole === USER_ROLES.HR;
-  const isUser = userRole === USER_ROLES.USER;
 
   return (
     <div className="manage-account">
@@ -18,6 +16,13 @@ function ManageAccount({ active, handlePageChange }) {
          <h2>Bảng điều khiển</h2>
         <hr></hr>
         
+        <li
+          className={active === "0" ? "active" : ""}
+          onClick={handlePageChange}
+        >
+          Thông tin cá nhân
+        </li>
+
         {isAdmin && (
           <li
             className={active === "1" ? "active" : ""}

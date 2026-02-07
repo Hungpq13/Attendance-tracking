@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getUserRole } from "../../services/permissions";
 import { USER_ROLES } from "../../services/constants";
+import PersonalInfo from "./PersonalInfor/PersonalInfo";
 import ManageProfile from "./CreateUser/ManageProfile";
 import InputWorkDay from "./InputWorkDay/InputWorkDay";
 import WorkDayTable from "./ViewWorkDayTable/WorkDayTable";
@@ -10,24 +11,27 @@ import './ProfilePage.css';
 function ProfilePage() {
   const userRole = getUserRole();
   const isAdmin = userRole === USER_ROLES.ADMIN;
-  const isHR = userRole === USER_ROLES.HR;
-  const isUser = userRole === USER_ROLES.USER;
   
-  // HR and regular users should start with viewWorkDayTable (option 3)
-  // Admin starts with manageProfile (option 1)
-  const initialActive = isAdmin ? "1" : "3";
-  const initialPage = isAdmin ? <ManageProfile /> : <WorkDayTable />;
+  // Default to personal info for all roles
+  const initialActive = "0";
+  const initialPage = <PersonalInfo />;
   
   const [page, setPage] = useState(initialPage);
   const [active, setActive] = useState(initialActive);
 
   const handlePageChange = (e) => {
-    // Only admins can navigate between pages
-    if (!isAdmin) {
+    const label = e.target.innerText;
+
+    // Non-admins can only access personal info and view workday
+    if (!isAdmin && label !== "Thông tin cá nhân" && label !== "Xem ngày công") {
       return;
     }
-    
-    switch (e.target.innerText) {
+
+    switch (label) {
+      case "Thông tin cá nhân":
+        setPage(<PersonalInfo />);
+        setActive("0");
+        break;
       case "Tạo tài khoản người dùng":
         setPage(<ManageProfile />);
         setActive("1");
@@ -37,13 +41,12 @@ function ProfilePage() {
         setActive("2");
         break;
       case "Xem ngày công":
-         setPage(<WorkDayTable />);
+        setPage(<WorkDayTable />);
         setActive("3");
         break;
-      
       default:
-        setPage(<ManageProfile />);
-        setActive("1");
+        setPage(<PersonalInfo />);
+        setActive("0");
     }
   };
 

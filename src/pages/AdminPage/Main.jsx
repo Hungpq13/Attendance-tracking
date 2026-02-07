@@ -11,7 +11,7 @@ function Main() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    debugger;
+   
     // Get user info from access token
     const userInfo = getUserFromToken();
     
@@ -29,7 +29,7 @@ function Main() {
   }, [navigate]);
 
   const handleLogout = async () => {
-    debugger;
+
     try {
       // Get refresh token from localStorage (saved during login)
       const refreshToken = localStorage.getItem(STORAGE_REFRESH_TOKEN);
