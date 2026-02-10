@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useUser } from "../../../presentation/hooks/useUser";
+import { getUserFromToken } from "../../../config/TokenHelper";
 import { userAPI } from "../../../services/api";
 import './ManageProfile.css';
 
@@ -9,7 +11,7 @@ function ManageProfile() {
   const [gender, setGender] = useState("Nam");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [position, setPosition] = useState("");
   const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(false);
   
@@ -20,14 +22,21 @@ function ManageProfile() {
   const loadProfile = async () => {
     setLoading(true);
     try {
-      const data = await userAPI.getProfile();
+      // Get user info from token (contains user ID)
+      const user = getUserFromToken();
+      if (!user) {
+        throw new Error('No user found in token');
+      }
+      
+      // Pass user ID to getProfile (Bearer token in Authorization header is automatic)
+      const data = await userAPI.getProfile(user.id);
       setFirstName(data.firstName || "");
       setLastName(data.lastName || "");
       setBirthDate(data.birthDate || "");
       setGender(data.gender || "Nam");
       setEmail(data.email || "");
       setPhone(data.phone || "");
-      setAddress(data.address || "");
+      setPosition(data.position || "");
       setUserName(data.userName || "");
     } catch (error) {
       console.error("Error loading profile:", error);
@@ -38,7 +47,7 @@ function ManageProfile() {
       setGender("Nam");
       setEmail("hungpham@gmail.com");
       setPhone("1234567890");
-      setAddress("123 Main St");
+      setPosition("Nhân viên");
       setUserName("hung.pq");
     } finally {
       setLoading(false);
@@ -62,7 +71,7 @@ function ManageProfile() {
         gender,
         email,
         phone,
-        address,
+        position,
         userName,
       };
       
@@ -81,7 +90,7 @@ function ManageProfile() {
       <div className="modal-overlay">
         <div className="modal-content">
           <h2 className="modal-header">
-            Xác nhận cập nhật thông tin người dùng?
+            Xác nhận tạo tài khoản mới?
           </h2>
           <div className="modal-buttons">
             <button
@@ -121,8 +130,8 @@ function ManageProfile() {
   const phoneChange = (e) => {
     setPhone(e.target.value);
   };
-  const addressChange = (e) => {
-    setAddress(e.target.value);
+  const positionChange = (e) => {
+    setPosition(e.target.value);
   };
   const userNameChange = (e) => {
     setUserName(e.target.value);
@@ -130,6 +139,20 @@ function ManageProfile() {
 
   return (
     <div className="manage-profile-container">
+      
+        <div className="form-row">
+
+        <h2 className="personal-info-title">Cấp tài khoản mới</h2>
+        <div className="button-container" style={{ marginLeft: "0.5rem" }}>
+        <button
+          className="create-button"
+          onClick={openModalHandler}
+        >
+          Tạo tài khoản
+        </button>
+      </div>
+      {openModal && <Modal />}
+        </div>
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="firstName">Tên</label>
@@ -203,44 +226,30 @@ function ManageProfile() {
 
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="address">Địa chỉ</label>
+          <label htmlFor="position">Chức vụ</label>
           <input
             type="text"
-            id="address"
-            value={address}
-            onChange={addressChange}
+            id="position"
+            value={position}
+            onChange={positionChange}
             className="form-input"
           />
         </div>
         <div className="form-group">
-        <label htmlFor="userName">Tên đăng nhập</label>
-        <input
-          id="userName"
-          value={userName}
-          onChange={userNameChange}
-          className="form-input"
-        />
+          <label htmlFor="userName">Tên đăng nhập</label>
+          <input
+            id="userName"
+            value={userName}
+            onChange={userNameChange}
+            className="form-input"
+          />
+        </div>
+      </div>
      
-
-    
       
-      </div>
 
-      
-   
-
+ 
      
-      </div>
-
-      <div className="button-container">
-        <button
-          className="save-button"
-          onClick={openModalHandler}
-        >
-          Lưu
-        </button>
-      </div>
-      {openModal && <Modal />}
     </div>
   );
 }

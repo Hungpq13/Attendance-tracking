@@ -1,5 +1,5 @@
-import { getUserRole } from '../../services/permissions';
-import { USER_ROLES } from '../../services/constants';
+import { getUserRole } from '../../config/PermissionHelper';
+import { USER_ROLES } from '../../config/constants';
 import './ManageAccount.css';
 
 function ManageAccount({ active, handlePageChange }) {

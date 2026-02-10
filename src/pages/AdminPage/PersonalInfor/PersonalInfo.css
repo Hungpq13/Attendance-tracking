@@ -1,0 +1,75 @@
+.personal-info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 50vw;
+  max-width: 100%;
+}
+
+.personal-info-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.3px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  letter-spacing: 0.3px;
+}
+
+.form-input {
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #dbdfe6;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  background: #fff;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.form-input:hover {
+  border-color: #667eea;
+  box-shadow: 0 1px 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #f8f9ff;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .personal-info-container {
+    width: 70vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .personal-info-container {
+    width: 90vw;
+    padding: 1rem;
+  }
+}

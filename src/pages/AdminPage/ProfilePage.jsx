@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getUserRole } from "../../services/permissions";
-import { USER_ROLES } from "../../services/constants";
+import { getUserRole } from "../../config/PermissionHelper";
+import { USER_ROLES } from "../../config/constants";
 import PersonalInfo from "./PersonalInfor/PersonalInfo";
 import ManageProfile from "./CreateUser/ManageProfile";
 import InputWorkDay from "./InputWorkDay/InputWorkDay";

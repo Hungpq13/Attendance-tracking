@@ -1,14 +1,24 @@
 .page-container {
-  padding: 16px;
-  width:80vw;
-  
+  padding: 1rem;
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
 }
 
 .month-selector {
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
 }
 
 .selector-group {
@@ -20,34 +30,51 @@
 .selector-group label {
   font-weight: 600;
   font-size: 1rem;
+  color: #2c3e50;
 }
 
 .year-picker,
 .month-picker-dropdown {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border: 1.5px solid #dbdfe6;
+  border-radius: 6px;
   font-size: 0.95rem;
-  min-width: 120px;
+  min-width: 140px;
   cursor: pointer;
   background-color: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.year-picker:hover,
+.month-picker-dropdown:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.15);
 }
 
 .year-picker:focus,
 .month-picker-dropdown:focus {
-  outline: 2px solid #667eea;
+  outline: none;
   border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .month-picker-dropdown option:disabled {
-  color: #ccc;
+  color: #bdbdbd;
 }
 
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
+  overflow-y: visible;
   background: #fff;
-  border: 1px solid #333;
+  border: 1px solid #dbdfe6;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  flex: 1;
+  margin-top: 1rem;
+  min-height: 300px;
+  max-height: calc(100vh - 400px);
 }
 
 .workday-table {
@@ -55,20 +82,27 @@
   border-collapse: collapse;
   font-size: 12px;
   min-width: 900px;
+  background: #fff;
 }
 
 .workday-table th,
 .workday-table td {
-  border: 1px solid #333;
-  padding: 4px 6px;
+  border: 1px solid #dbdfe6;
+  padding: 6px 8px;
   text-align: center;
   vertical-align: middle;
   white-space: nowrap;
 }
 
 .workday-table thead th {
-  background: #f2f2f2;
+  background: #f8f9fa;
   font-weight: 600;
+  color: #2c3e50;
+  border-color: #d9e1e8;
+}
+
+.workday-table tbody tr:hover {
+  background: #f8f9fa;
 }
 
 .col-index {
@@ -96,10 +130,11 @@
 }
 
 .day-cell {
-  width: 26px;
-  padding: 2px 0;
+  width: 28px;
+  padding: 4px 2px;
 }
 
 .cell-left {
   text-align: left;
+  padding-left: 12px;
 }

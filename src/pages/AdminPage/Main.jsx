@@ -1,87 +1,72 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authAPI, cookieManager, getUserFromToken } from '../../services/auth';
-import { getUserRole } from '../../services/permissions';
-import { STORAGE_TOKEN, STORAGE_USER, STORAGE_REFRESH_TOKEN } from '../../services/constants';
-import ProfilePage from './ProfilePage';
+import { useAuth } from '../../presentation/hooks/useAuth';
+import { getUserFromToken } from '../../config/TokenHelper';
+import { STORAGE_TOKEN, STORAGE_USER, STORAGE_REFRESH_TOKEN } from '../../config/constants';
+import PersonalInfo from './PersonalInfor/PersonalInfo';
+import ManageProfile from './CreateUser/ManageProfile';
+import InputWorkDay from './InputWorkDay/InputWorkDay';
+import WorkDayTable from './ViewWorkDayTable/WorkDayTable';
+import Sidebar from './Sidebar/Sidebar';
+import Topbar from './Topbar/Topbar';
 import './Main.css';
 
 function Main() {
   const [user, setUser] = useState(null);
+  const [avatar, setAvatar] = useState(null);
+  const [currentPage, setCurrentPage] = useState('dashboard');
   const navigate = useNavigate();
 
   useEffect(() => {
-   
-    // Get user info from access token
     const userInfo = getUserFromToken();
     
-    console.log('🔍 Main - Checking auth:');
-    console.log('  userInfo:', userInfo);
-    
     if (!userInfo) {
-      console.log('❌ Redirecting to login: no userInfo');
-      // Redirect to login if no token or invalid token
       navigate('/');
     } else {
-      console.log('✅ Setting user, allowing access');
       setUser(userInfo);
     }
   }, [navigate]);
 
-  const handleLogout = async () => {
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setAvatar(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    try {
-      // Get refresh token from localStorage (saved during login)
-      const refreshToken = localStorage.getItem(STORAGE_REFRESH_TOKEN);
-      const accessToken = localStorage.getItem(STORAGE_TOKEN);
-      
-      console.log('🔓 Logout details:');
-      console.log('  refreshToken from localStorage:', !!refreshToken);
-      console.log('  accessToken from localStorage:', !!accessToken);
-      
-      // Call backend logout API
-      if (refreshToken) {
-        console.log('📤 Calling logout API with refreshToken...');
-        await authAPI.logout(refreshToken);
-        console.log('✅ Backend logout successful');
-      } else {
-        console.log('⚠️  No refreshToken found, doing local logout only');
-      }
-    } catch (error) {
-      console.error('❌ Logout API error:', error);
-      // Continue with local logout even if API error
-    } finally {
-      // Clear all auth data from localStorage
-      localStorage.removeItem(STORAGE_USER);
-      localStorage.removeItem(STORAGE_TOKEN);
-      localStorage.removeItem(STORAGE_REFRESH_TOKEN);
-      
-      // Debug log
-      console.log('✅ Local logout successful!');
-      console.log('🗑️  Cleared localStorage: user, token, refreshToken');
-      
-      // Redirect to login
-      navigate('/');
+  const renderPageContent = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <PersonalInfo />;
+      case 'manage':
+        return <ManageProfile />;
+      case 'input':
+        return <InputWorkDay />;
+      case 'view':
+        return <WorkDayTable />;
+      default:
+        return <PersonalInfo />;
     }
   };
 
   return (
-    <div className="main-container">
-      <header className="main-header">
-        <h1>Chào, {user?.username || 'User'}! - {user ? getUserRole() : ''}</h1>
-        <div className="user-info">
-          {user?.email && <span>{user.email}</span>}
-          <button onClick={handleLogout} className="logout-btn">
-            Đăng xuất
-          </button>
-        </div>
-      </header>
-      
-      <main className="main-content"> 
-        <ProfilePage />
-      </main>
+    <div className="dashboard-layout">
+      <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
+      <div className="main-wrapper">
+        <Topbar user={user} avatar={avatar} onAvatarChange={handleAvatarChange} />
+        <main className="main-content">
+          {renderPageContent()}
+        </main>
+      </div>
     </div>
   );
 }
 
 export default Main;
+
+
+

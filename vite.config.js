@@ -9,5 +9,13 @@ export default defineConfig({
     https: true,
     host: '0.0.0.0',  // Expose to network
     port: 5173,
+    proxy: {
+      '/api': {
+        target: 'https://100.96.18.81:7085',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+        secure: false, // Ignore SSL certificate errors for dev
+      }
+    }
   }
 })

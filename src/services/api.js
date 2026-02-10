@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { getUserFromToken } from './auth';
-import { API_BASE_URL, STORAGE_TOKEN, COOKIE_REFRESH_TOKEN } from './constants';
+import { getUserFromToken } from '../config/TokenHelper';
+import { API_BASE_URL, STORAGE_TOKEN } from '../config/constants';
 
 // Helper function to get cookie value
 const getCookie = (name) => {
@@ -33,10 +33,10 @@ api.interceptors.request.use(
     }
     
     // Add Refresh token from cookies
-    const refreshToken = getCookie(COOKIE_REFRESH_TOKEN);
-    if (refreshToken) {
-      config.headers['X-Refresh-Token'] = refreshToken;
-    }
+      // const refreshToken = getCookie(COOKIE_REFRESH_TOKEN);
+      // if (refreshToken) {
+      //   config.headers['X-Refresh-Token'] = refreshToken;
+      // }
     
     return config;
   },
@@ -46,16 +46,13 @@ api.interceptors.request.use(
 );
 
 // User API endpoints
+
 export const userAPI = {
-  getProfile: async () => {
+ 
+  // Get user profile by ID with Bearer token in Authorization header
+  getProfile: async (id) => { 
     try {
-      // Get user ID from token
-      const user = getUserFromToken();
-      if (!user || !user.id) {
-        throw new Error('User not authenticated');
-      }
-      
-      const response = await api.get(`/user/${user.id}`);
+      const response = await api.get(`/userProfile/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

@@ -2,9 +2,13 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 2rem 0 2rem 3rem;
-
- 
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  width : 45vw;
 }
 
 .form-row {
@@ -26,10 +30,24 @@
   height: 50px;
   width: 200px;
   border-radius: 6px;
-  border: 2px solid #d1d5db;
-  background-color: #f5f5f5;
+  border: 1.5px solid #dbdfe6;
+  background-color: #fff;
   padding-left: 1rem;
-    
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.form-input:hover {
+  border-color: #667eea;
+  box-shadow: 0 1px 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background-color: #f8f9ff;
 }
 
 
@@ -38,22 +56,36 @@
   height: 50px;
   width: 200px;
   border-radius: 6px;
-  border: 2px solid #d1d5db;
-  background-color: #f5f5f5;
+  border: 1.5px solid #dbdfe6;
+  background-color: #fff;
   padding: 0 1rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+}
+
+.form-select:hover {
+  border-color: #667eea;
+  box-shadow: 0 1px 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background-color: #f8f9ff;
 }
 
 .button-container {
-  margin-top: 1rem;
-  margin-right: 2.5rem;
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
 }
 
-.save-button {
-  height: 40px;
-  width: 110px;
+.create-button {
+  height: 50px;
+  width: 130px;
   border-radius: 6px;
   background-color: #1173be;
   color: white;
@@ -61,9 +93,11 @@
   cursor: pointer;
   text-align: center;
   font-weight: 600;
+  font-size : 0.8rem;
+  
 }
 
-.save-button:hover {
+.create-button:hover {
   filter: brightness(1.25);
 }
 
@@ -89,9 +123,10 @@
 .modal-content {
   width: 70%;
   min-width: 600px;
-  border-radius: 6px;
+  border-radius: 8px;
   background-color: white;
   padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .modal-input-row {
