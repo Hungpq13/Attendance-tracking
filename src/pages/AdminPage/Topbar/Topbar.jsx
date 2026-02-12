@@ -32,7 +32,6 @@ function Topbar({ user, avatar, onAvatarChange, currentPage, onMenuClick, sideba
       localStorage.removeItem(STORAGE_REFRESH_TOKEN);
       navigate('/');
     } catch (error) {
-      console.error('Lỗi đăng xuất:', error);
       navigate('/');
     }
   };
@@ -47,9 +46,9 @@ function Topbar({ user, avatar, onAvatarChange, currentPage, onMenuClick, sideba
       };
       onAvatarChange(mockEvent);
       setShowUserMenu(false);
-      console.log('✅ Avatar updated successfully');
+
     } catch (error) {
-      console.error('❌ Error updating avatar:', error);
+
       alert('Lỗi khi thay đổi ảnh đại diện');
     }
   };

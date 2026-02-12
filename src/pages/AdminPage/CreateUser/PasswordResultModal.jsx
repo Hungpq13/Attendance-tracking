@@ -11,7 +11,7 @@ function PasswordResultModal({ isOpen, password, onClose }) {
       document.body.removeChild(textArea);
       alert("Đã copy mật khẩu!");
     } catch (error) {
-      console.error("Lỗi copy:", error);
+
       alert("Copy thất bại!");
     }
   };

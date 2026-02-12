@@ -77,7 +77,6 @@ function AvatarUploadModal({ isOpen, onClose, onUpload, currentAvatar }) {
       await onUpload(preview);
       onClose();
     } catch (error) {
-      console.error('❌ Error uploading avatar:', error);
       alert('Lỗi khi tải ảnh lên');
     } finally {
       setUploading(false);

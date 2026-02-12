@@ -11,6 +11,7 @@ import './Login.css';
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const navigate = useNavigate();
@@ -32,24 +33,18 @@ function Login() {
     }
 
     try {
-      
       // Gọi login use case từ hook
       const result = await login(username, password);
       
-      // Kiểm tra xem có cần đổi mật khẩu không (từ response)
+      // Kiểm tra xem có cần đổi mật khẩu không
       if (result.response?.isForceChangePassword) {
-        // Nếu cần đổi mật khẩu, mở modal
         setShowPasswordModal(true);
-      }  
-      if (!result.response?.isForceChangePassword)
-        {if (result.success) {
-       
+      } else if (result.success) {
         setTimeout(() => {
           navigate('/main', { replace: true });
-        }, 100);}
+        }, 100);
       }
     } catch (error) {
-      console.error('❌ Lỗi đăng nhập:', error);
       alert(error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tên đăng nhập và mật khẩu.');
     }
   };
@@ -58,7 +53,7 @@ function Login() {
     <div className="center">
       <h2>Phần mềm quản lý ngày công</h2>
       <form ref={formRef} onSubmit={handleSubmit}>
-        <div className="txt_field" style={{ cursor: 'pointer' }}>
+        <div className="txt_field">
           <input
             type="text"
             id="username"

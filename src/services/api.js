@@ -186,6 +186,50 @@ export const payrollAPI = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Save timesheet entry
+  saveTimesheet: async (timesheetData) => {
+    try {
+      console.log('[saveTimesheet] Sending payload:', timesheetData);
+      const response = await api.post('/payroll/timesheet', timesheetData);
+      console.log('[saveTimesheet] Success response:', response.data);
+      return response.data;
+    } catch (error) {
+      const errorDetail = {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        payload: timesheetData
+      };
+      console.error('[saveTimesheet] Error:', errorDetail);
+      if (error.response?.data?.errors) {
+        console.error('[saveTimesheet] Validation errors:', error.response.data.errors);
+      }
+      throw errorDetail;
+    }
+  },
+
+  // Save salary component
+  saveSalaryComponent: async (salaryData) => {
+    try {
+      console.log('[saveSalaryComponent] Sending payload:', salaryData);
+      const response = await api.post('/payroll/salary-structure', salaryData);
+      console.log('[saveSalaryComponent] Success response:', response.data);
+      return response.data;
+    } catch (error) {
+      const errorDetail = {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        payload: salaryData
+      };
+      console.error('[saveSalaryComponent] Error:', errorDetail);
+      if (error.response?.data?.errors) {
+        console.error('[saveSalaryComponent] Validation errors:', error.response.data.errors);
+      }
+      throw errorDetail;
+    }
+  },
 };
 
 export default api;

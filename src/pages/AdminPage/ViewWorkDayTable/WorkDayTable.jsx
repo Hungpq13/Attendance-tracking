@@ -21,9 +21,9 @@ function WorkDayTable() {
   const [loadingSalaries, setLoadingSalaries] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [searchTrigger, setSearchTrigger] = useState(0);
   const [timesheetData, setTimesheetData] = useState([]);
   const [loadingTimesheet, setLoadingTimesheet] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const {
     formatCurrency,
@@ -125,98 +125,98 @@ function WorkDayTable() {
     };
 
     loadAllEmployees();
-  }, []);
+  }, [userProfile]);
 
 
 
-  // Fetch salary structure for all employees using payroll calculate API
-  useEffect(() => {
-    const fetchAllEmployeesSalaries = async () => {
-      // Check if user is employee
-      if (isEmployeeRole()) {
-        // Employee: fetch only their own salary
-        const currentUser = getCurrentUser();
-        if (!currentUser) return;
+  // Helper function to fetch salaries
+  const fetchSalariesForMonth = async (month, year, empList = null) => {
+    const employeeList = empList || employees;
+    // Check if user is employee
+    if (isEmployeeRole()) {
+      // Employee: fetch only their own salary
+      const currentUser = getCurrentUser();
+      if (!currentUser) return;
 
-        try {
-          setLoadingSalaries(true);
-          
-          const response = await payrollAPI.calculateSinglePayroll(
-            currentUser.id,
-            selectedMonth,
-            selectedYear
-          );
-          
-          const salariesMap = {};
-          
-          // Handle both single object and array response
-          const salaryData = Array.isArray(response) ? response[0] : response;
-          if (salaryData) {
-            salariesMap[currentUser.id] = {
-              baseSalary: salaryData.salaryBaseAmount || 0,
-              totalAllowances: salaryData.totalAllowances || 0,
-              totalAmount: salaryData.grandTotalSalary || 0,
-              advancePayment: salaryData.totalAdvance || 0,
-              remainingAmount: salaryData.netPay || 0,
-              totalWorkDays: salaryData.totalWorkDays || 0,
-              totalOvertimeHours: salaryData.totalOvertimeHours || 0,
-            };
-          }
-          
-          setEmployeeSalaries(salariesMap);
-        } catch (error) {
-          // Error fetching salary
-        } finally {
-          setLoadingSalaries(false);
+      try {
+        setLoadingSalaries(true);
+        
+        const response = await payrollAPI.calculateSinglePayroll(
+          currentUser.id,
+          month,
+          year
+        );
+        
+        const salariesMap = {};
+        
+        // Handle both single object and array response
+        const salaryData = Array.isArray(response) ? response[0] : response;
+        if (salaryData) {
+          salariesMap[currentUser.id] = {
+            baseSalary: salaryData.salaryBaseAmount || 0,
+            totalAllowances: salaryData.totalAllowances || 0,
+            totalAmount: salaryData.grandTotalSalary || 0,
+            advancePayment: salaryData.totalAdvance || 0,
+            remainingAmount: salaryData.netPay || 0,
+            totalWorkDays: salaryData.totalWorkDays || 0,
+            totalOvertimeHours: salaryData.totalOvertimeHours || 0,
+          };
         }
-      } else {
-        // Admin: fetch all employees' salaries
-        if (!employees || employees.length === 0) {
-          return;
-        }
-
-        try {
-          setLoadingSalaries(true);
-          
-          const response = await payrollAPI.calculatePayroll(employees, selectedMonth, selectedYear);
-          
-          const salariesMap = {};
-         
-          if (Array.isArray(response)) {
-            response.forEach((salary) => {
-              salariesMap[salary.id] = {
-                baseSalary: salary.salaryBaseAmount || 0,
-                totalAllowances: salary.totalAllowances || 0,
-                totalAmount: salary.grandTotalSalary || 0,
-                advancePayment: salary.totalAdvance || 0,
-                remainingAmount: salary.netPay || 0,
-                totalWorkDays: salary.totalWorkDays || 0,
-                totalOvertimeHours: salary.totalOvertimeHours || 0,
-              };
-            });
-          }
-
-          setEmployeeSalaries(salariesMap);
-        } catch (error) {
-          // Error fetching all salaries
-        } finally {
-          setLoadingSalaries(false);
-        }
+        
+        setEmployeeSalaries(salariesMap);
+      } catch (error) {
+        // Error fetching salary
+      } finally {
+        setLoadingSalaries(false);
       }
-    };
+    } else {
+      // Admin: fetch all employees' salaries
+      if (!employeeList || employeeList.length === 0) {
+        return;
+      }
 
-    fetchAllEmployeesSalaries();
-  }, [employees, searchTrigger]);
+      try {
+        setLoadingSalaries(true);
+        
+        const response = await payrollAPI.calculatePayroll(employeeList, month, year);
+        
+        const salariesMap = {};
+       
+        if (Array.isArray(response)) {
+          response.forEach((salary) => {
+            salariesMap[salary.id] = {
+              baseSalary: salary.salaryBaseAmount || 0,
+              totalAllowances: salary.totalAllowances || 0,
+              totalAmount: salary.grandTotalSalary || 0,
+              advancePayment: salary.totalAdvance || 0,
+              remainingAmount: salary.netPay || 0,
+              totalWorkDays: salary.totalWorkDays || 0,
+              totalOvertimeHours: salary.totalOvertimeHours || 0,
+            };
+          });
+        }
 
-
-
-  const handleSearch = () => {
-    setSearchTrigger(prev => prev + 1);
+        setEmployeeSalaries(salariesMap);
+      } catch (error) {
+        // Error fetching all salaries
+      } finally {
+        setLoadingSalaries(false);
+      }
+    }
   };
+
+  // Fetch salaries when employees list changes (initial load)
+  useEffect(() => {
+    if (employees && employees.length > 0) {
+      fetchSalariesForMonth(selectedMonth, selectedYear);
+    }
+  }, [employees]);
 
   const handleYearChange = (e) => {
     const newYear = parseInt(e.target.value);
     setSelectedYear(newYear);
+    setEmployeeSalaries({});
+    setHasSearched(false);
 
     // If selected year is current year, ensure month is not in future
     if (newYear === currentYear && selectedMonth > currentMonthNum) {
@@ -226,6 +226,32 @@ function WorkDayTable() {
 
   const handleMonthChange = (e) => {
     setSelectedMonth(parseInt(e.target.value));
+    setEmployeeSalaries({});
+    setHasSearched(false);
+  };
+
+  const handleSearch = async () => {
+    setHasSearched(true);
+    // Refresh employees list to get updated fullName
+    try {
+      debugger;
+      const employeeList = await userAPI.getAllUsers();
+      const formattedEmployees = employeeList.map((emp) => ({
+        id: emp.id,
+        fullName: emp.fullName || "Chưa cập nhật",
+        days: Array.from({ length: daysInMonth }, () => ""),
+        total: 26,
+        overtimeHours: 0,
+        unpaidLeave: 1,
+        holidayLeave: 1,
+        paidLeave: 0,
+      }));
+      setEmployees(formattedEmployees);
+      // Fetch salaries with updated employees
+      await fetchSalariesForMonth(selectedMonth, selectedYear, formattedEmployees);
+    } catch (error) {
+      // Error fetching employees
+    }
   };
 
   // Check if a month should be disabled
@@ -403,7 +429,11 @@ function WorkDayTable() {
                 gridColumn: "1 / -1",
               }}
             >
-              Chưa có dữ liệu lương trong tháng {selectedMonth} năm {selectedYear}
+              {!hasSearched ? (
+                <span>
+                  Vui lòng nhấp nút <a><b>Tra cứu</b></a> để xem dữ liệu
+                </span>
+              ) : "Chưa có dữ liệu lương trong tháng " + selectedMonth + " năm " + selectedYear}
             </div>
           </div>
         </div>
@@ -424,7 +454,11 @@ function WorkDayTable() {
                     gridColumn: "1 / -1",
                   }}
                 >
-                  Chưa có dữ liệu
+                  {!hasSearched ? (
+                    <span>
+                      Vui lòng nhấp nút <a><b>Tra cứu</b></a> để xem dữ liệu
+                    </span>
+                  ) : "Chưa có dữ liệu"}
                 </div>
               ) : (
                 rows.map((row, index) => (
@@ -522,7 +556,7 @@ function WorkDayTable() {
             }}
           >
             <h3 style={{ marginTop: 0, marginBottom: "20px" }}>
-              Chi tiết chấm công - {selectedRow.fullName} - Tháng {monthLabel}
+              Chi tiết chấm công - {employees.find(e => e.id === selectedRow.id)?.fullName || selectedRow.fullName} -  {monthLabel}
             </h3>
             {loadingTimesheet ? (
               <div

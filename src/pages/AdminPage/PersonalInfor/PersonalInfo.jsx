@@ -35,7 +35,7 @@ function PersonalInfo() {
         setAvatarUrl(data.avatarUrl || "");
         setUserName(user?.username || "");
       } catch (error) {
-        console.error("Error loading profile:", error);
+
       }
     };
 
