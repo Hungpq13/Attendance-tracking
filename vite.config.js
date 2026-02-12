@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), basicSsl()],
   server: {
     https: true,
-    host: '0.0.0.0',  // Expose to network
+    host: true,  // Expose to network
     port: 5173,
     proxy: {
       '/api': {

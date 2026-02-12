@@ -9,14 +9,7 @@ import { API_BASE_URL, STORAGE_TOKEN, API_ENDPOINTS } from '../../config/constan
  * 🔍 Debug: In tất cả cookies hiện có
  */
 const logAllCookies = () => {
-  console.log('📦 Tất cả cookies hiện có:');
-  const cookies = document.cookie.split(';').map(c => c.trim());
-  cookies.forEach(cookie => {
-    if (cookie) {
-      const [name] = cookie.split('=');
-      console.log(`  - ${name}`);
-    }
-  });
+  // Cookies logging removed
 };
 
 // Tạo axios instance riêng cho auth
@@ -28,23 +21,17 @@ const authAxios = axios.create({
   withCredentials: true, // ✅ Cho phép gửi cookies cùng với request
 });
 
-// 🔍 Request interceptor với logging chi tiết
+// 🔍 Request interceptor
 authAxios.interceptors.request.use(
   (config) => {
     // Lấy access token từ localStorage
     const token = localStorage.getItem(STORAGE_TOKEN);
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      const tokenParts = token.split('.');
+      if (tokenParts.length === 3) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
-    
-    // 🔍 Debug logging
-    console.log(`📤 Request: ${config.method.toUpperCase()} ${config.url}`);
-    console.log('  Headers:', {
-      'Authorization': config.headers.Authorization ? '✅ Có' : '❌ Không',
-      'withCredentials': 'true ✅'
-    });
-    logAllCookies();
-    
     return config;
   },
   (error) => {
@@ -52,17 +39,12 @@ authAxios.interceptors.request.use(
   }
 );
 
-// 🔍 Response interceptor với logging chi tiết
+// 🔍 Response interceptor
 authAxios.interceptors.response.use(
   (response) => {
-    console.log(`📥 Response: ${response.status} ${response.statusText}`);
-    if (response.headers['set-cookie']) {
-      console.log('🍪 Set-Cookie headers:', response.headers['set-cookie']);
-    }
     return response;
   },
   (error) => {
-    console.error('❌ Response error:', error.response?.status, error.response?.data);
     throw error;
   }
 );
@@ -76,16 +58,18 @@ export class AuthDataSource {
    */
   async login(username, password) {
     try {
-      console.log('🔐 Gửi request đăng nhập...');
       const response = await authAxios.post(API_ENDPOINTS.LOGIN, {
         username,
         password,
       });
-      console.log('✅ Đăng nhập thành công');
       return response.data;
     } catch (error) {
-      console.error('❌ Login API error:', error);
-      throw error.response?.data || error.message;
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.message || 
+                          'Đăng nhập thất bại';
+      const err = new Error(errorMessage);
+      throw err;
     }
   }
 
@@ -97,15 +81,15 @@ export class AuthDataSource {
    */
   async logout() {
     try {
-      console.log('🔓 Gửi request đăng xuất...');
-      console.log('💾 Browser sẽ tự động gửi refreshToken từ HTTP-only Cookie');
-      // Gửi request rỗng, withCredentials sẽ tự động kèm cookies
       const response = await authAxios.post(API_ENDPOINTS.LOGOUT);
-      console.log('✅ Đăng xuất thành công');
       return response.data;
     } catch (error) {
-      console.error('❌ Logout API error:', error);
-      throw error.response?.data || error.message;
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.message || 
+                          'Đăng xuất thất bại';
+      const err = new Error(errorMessage);
+      throw err;
     }
   }
 
@@ -115,20 +99,43 @@ export class AuthDataSource {
    * @param {string} newPassword - Mật khẩu mới
    * @param {string} confirmPassword - Xác nhận mật khẩu
    * @returns {Promise<void>}
+   * 
+   * 🔍 TROUBLESHOOTING nếu nhận 500 error:
+   * 1. Kiểm tra Bearer token có hợp lệ không (check console logs)
+   * 2. Kiểm tra tên field: oldPassword, newPassword, confirmPassword
+   * 3. So sánh trong Postman:
+   *    - Body type: raw JSON
+   *    - Headers: Authorization: Bearer <token>
+   *    - Content-Type: application/json
+   * 4. Kiểm tra response body có lỗi gì không (xem console error)
    */
   async changePassword(oldPassword, newPassword, confirmPassword) {
     try {
-      console.log('🔒 Gửi request thay đổi mật khẩu...');
-      const response = await authAxios.post(API_ENDPOINTS.CHANGE_PASSWORD, {
+      const token = localStorage.getItem(STORAGE_TOKEN);
+      if (!token) {
+        throw new Error('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      }
+      
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        throw new Error('Token không hợp lệ. Vui lòng đăng nhập lại.');
+      }
+      
+      const payload = {
         oldPassword,
         newPassword,
-        confirmPassword,
-      });
-      console.log('✅ Thay đổi mật khẩu thành công');
+        confirmNewPassword: confirmPassword,
+      };
+      
+      const response = await authAxios.post(API_ENDPOINTS.CHANGE_PASSWORD, payload);
       return response.data;
     } catch (error) {
-      console.error('❌ Change password API error:', error);
-      throw error.response?.data || error.message;
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.message || 
+                          'Thay đổi mật khẩu thất bại';
+      const err = new Error(errorMessage);
+      throw err;
     }
   }
 }

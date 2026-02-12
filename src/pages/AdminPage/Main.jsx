@@ -15,6 +15,7 @@ function Main() {
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,9 +56,24 @@ function Main() {
 
   return (
     <div className="dashboard-layout">
-      <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
+      <Sidebar 
+        currentPage={currentPage} 
+        onPageChange={(page) => {
+          setCurrentPage(page);
+          setSidebarOpen(false);
+        }} 
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       <div className="main-wrapper">
-        <Topbar user={user} avatar={avatar} onAvatarChange={handleAvatarChange} />
+        <Topbar 
+          user={user} 
+          avatar={avatar} 
+          onAvatarChange={handleAvatarChange} 
+          currentPage={currentPage}
+          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          sidebarOpen={sidebarOpen}
+        />
         <main className="main-content">
           {renderPageContent()}
         </main>

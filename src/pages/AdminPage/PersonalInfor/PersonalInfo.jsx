@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../presentation/hooks/useAuth";
 import { useUser } from "../../../presentation/hooks/useUser";
-import { getUserFromToken } from "../../../config/TokenHelper";
-import { userAPI } from "../../../services/api";
+import { formatDateDisplay } from "../../../utils/dateFormatter";
 import "./PersonalInfo.css";
 
 function PersonalInfo() {
@@ -14,46 +13,34 @@ function PersonalInfo() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [userName, setUserName] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  const { getCurrentUser } = useAuth();
+  const { profile, loading, loadProfile } = useUser();
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    const loadUserProfile = async () => {
+      try {
+        const user = getCurrentUser();
+        if (!user) {
+          throw new Error('No user found in token');
+        }
 
-  const loadProfile = async () => {
-    setLoading(true);
-    try {
-      const user = getUserFromToken();
-      if (!user) {
-        throw new Error('No user found in token');
+        const data = await loadProfile();
+        setFirstName(user?.username || "");
+        setLastName(data.lastName || "");
+        setDateOfBirth(formatDateDisplay(data.dateOfBirth || data.birthDate || data.dob || ""));
+        setGender(data.gender || "");
+        setEmail(user?.email || "");
+        setPhoneNumber(data.phoneNumber || "");
+        setAvatarUrl(data.avatarUrl || "");
+        setUserName(user?.username || "");
+      } catch (error) {
+        console.error("Error loading profile:", error);
       }
-      
-      const data = await userAPI.getProfile(user.id);
-      setFirstName(user?.username || "");
-      setLastName(data.lastName || "");
-      
-      let formattedDate = "";
-      const dateValue = data.dateOfBirth || data.birthDate || data.dob || "";
-      if (Array.isArray(dateValue)) {
-        const [year, month, day] = dateValue;
-        formattedDate = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
-      } else if (typeof dateValue === 'string') {
-        const datePart = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
-        const [year, month, day] = datePart.split('-');
-        formattedDate = `${day}/${month}/${year}`;
-      }
-      setDateOfBirth(formattedDate);
-      setGender(data.gender || "");
-      setEmail(user?.email || "");
-      setPhoneNumber(data.phoneNumber || "");
-      setAvatarUrl(data.avatarUrl || "");
-      setUserName(user?.username || "");
-    } catch (error) {
-      console.error("Error loading profile:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    loadUserProfile();
+  }, []);
 
   return (
     <div className="personal-info-container">

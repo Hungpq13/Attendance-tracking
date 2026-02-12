@@ -1,0 +1,1265 @@
+/* ============================================================
+   RESPONSIVE DESIGN - Attendance Tracking System
+   ============================================================
+   This file consolidates all responsive styles for the entire
+   application. Media queries are organized by component/page
+   for easy maintenance and scalability.
+   =========================================================== */
+
+/* ============================================================
+   GLOBAL RESPONSIVE STYLES
+   ============================================================ */
+
+/* All devices - Base responsive setup */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   SIDEBAR RESPONSIVE STYLES (src/pages/AdminPage/Sidebar/)
+   ============================================================ */
+
+/* Sidebar animation - slide from left */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Desktop - sidebar always visible */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+  transform: translateX(0);
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+.sidebar-close {
+  display: none;
+}
+
+/* Mobile/Tablet - sidebar hidden by default */
+@media (max-width: 1021px) {
+  /* Hide sidebar completely on tablet and below */
+  .sidebar {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  /* Show sidebar when open */
+  .sidebar.open {
+    display: flex !important;
+    animation: slideInLeft 0.3s ease forwards;
+  }
+
+  /* Sidebar overlay for mobile */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 98;
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* Close button visible on mobile */
+  .sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .sidebar-close:hover {
+    opacity: 0.8;
+  }
+
+  /* Sidebar header layout on mobile */
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .sidebar-header:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-item {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Hide icons on mobile, show labels only */
+  .nav-icon {
+    display: none !important;
+  }
+
+  .nav-label {
+    display: inline !important;
+    font-size: 0.9rem;
+  }
+
+  .logo-text {
+    display: none;
+  }
+
+  .sidebar-logo {
+    justify-content: center;
+    flex: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Tablet adjustments */
+  .sidebar {
+    width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile adjustments */
+  .sidebar {
+    width: 250px;
+  }
+
+  .nav-label {
+    display: inline !important;
+    font-size: 0.85rem !important;
+  }
+
+  .nav-icon {
+    display: none !important;
+  }
+
+  .nav-item {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    justify-content: flex-start;
+  }
+
+  .section-title {
+    display: none;
+  }
+}
+
+/* ============================================================
+   TOPBAR RESPONSIVE STYLES (src/pages/AdminPage/Topbar/)
+   ============================================================ */
+
+/* Desktop - hide menu button, topbar extends full width */
+@media (min-width: 1025px) {
+  .menu-toggle {
+    display: none !important;
+  }
+}
+
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 280px;
+  right: 0;
+  height: 70px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  z-index: 99;
+  transition: left 0.3s ease;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+}
+
+/* Mobile/Tablet - show menu button and adjust topbar */
+@media (max-width: 1021px) {
+  /* Show menu button */
+  .menu-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.5rem 0.75rem !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  .menu-text {
+    display: inline !important;
+  }
+
+  /* Topbar spans full width on mobile */
+  .topbar {
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  .topbar-content {
+    padding: 0 1rem;
+  }
+
+  .topbar-right {
+    gap: 1rem;
+  }
+
+  .username {
+    display: none;
+  }
+
+  .user-button {
+    padding: 0.5rem;
+  }
+
+  .topbar-title {
+    font-size: 1.2rem;
+  }
+
+  .modal-content {
+    width: 100% !important;
+    max-width: 90vw !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .topbar {
+    left: 0 !important;
+    height: 60px;
+  }
+
+  .menu-toggle {
+    padding: 0.4rem 0.6rem !important;
+  }
+
+  .menu-text {
+    font-size: 0.8rem !important;
+  }
+
+  .role-badge {
+    display: none;
+  }
+
+  .user-badge {
+    display: none;
+  }
+
+  .topbar-title {
+    font-size: 1rem;
+  }
+
+  .topbar-content {
+    padding: 0 0.5rem;
+  }
+
+  .topbar-right {
+    gap: 0.5rem;
+  }
+
+  .avatar-frame {
+    width: 32px;
+    height: 32px;
+  }
+
+  .menu-toggle {
+    margin-right: 0.5rem;
+  }
+}
+
+/* ============================================================
+   MAIN LAYOUT RESPONSIVE STYLES (src/pages/AdminPage/Main.css)
+   ============================================================ */
+
+/* Desktop - sidebar always visible, main-wrapper has left margin */
+.main-wrapper {
+  margin-left: 280px;
+  transition: margin-left 0.3s ease;
+}
+
+/* Mobile/Tablet - sidebar hidden, main-wrapper full width */
+@media (max-width: 1021px) {
+  .main-wrapper {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .main-content {
+    padding: 1.5rem;
+    margin-top: 70px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Tablet breakpoint */
+  .main-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .main-content {
+    padding: 1.5rem;
+    margin-top: 70px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .main-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .main-content {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1rem;
+    margin-top: 60px;
+  }
+
+  .dashboard-layout {
+    height: auto;
+  }
+}
+
+/* ============================================================
+   LOGIN PAGE RESPONSIVE STYLES (src/pages/Login/Login.css)
+   ============================================================ */
+
+@media (max-width: 767px) {
+  /* Tablet breakpoint */
+  .center {
+    width: 90%;
+    max-width: 400px;
+  }
+
+  .center form {
+    padding: 0 30px;
+  }
+
+  .center h2 {
+    padding: 15px 0;
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .center {
+    width: 95%;
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  .center form {
+    padding: 0 20px;
+  }
+
+  .center h2 {
+    padding: 15px 0;
+    font-size: 1.1rem;
+  }
+
+  .txt_field {
+    margin: 20px 0;
+  }
+
+  .txt_field input {
+    height: 35px;
+    font-size: 14px;
+  }
+
+  input[type="submit"] {
+    height: 45px;
+    font-size: 16px;
+  }
+
+  body {
+    background: linear-gradient(120deg, #2980b9, #8e44ad);
+    padding: 20px 0;
+    height: auto;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ============================================================
+   PERSONAL INFO PAGE RESPONSIVE STYLES
+   (src/pages/AdminPage/PersonalInfor/PersonalInfo.css)
+   ============================================================ */
+
+@media (max-width: 1021px) {
+  /* Large tablet */
+  .personal-info-container {
+    width: 100vw !important;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Tablet breakpoint */
+  .personal-info-container {
+    width: 90vw;
+    padding: 1rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .personal-info-title {
+    font-size: 1.1rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-input {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .personal-info-container {
+    width: 95vw;
+    padding: 0.75rem;
+  }
+
+  .personal-info-title {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-input {
+    font-size: 14px;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* ============================================================
+   WORK DAY TABLE RESPONSIVE STYLES
+   (src/pages/AdminPage/ViewWorkDayTable/WorkDayTable.css)
+   ============================================================ */
+
+@media (max-width: 1021px) {
+  /* Large tablet */
+  .workday-table {
+    min-width: 1000px;
+    font-size: 11px;
+  }
+
+  .page-container {
+    width : 100vw !important;
+    max-height: calc(100vh - 180px);
+  }
+
+  .month-selector {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Tablet breakpoint */
+  .page-container {
+    padding: 0.75rem;
+    max-height: calc(100vh - 180px);
+  }
+
+  .month-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .selector-group {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .year-picker,
+  .month-picker-dropdown {
+    min-width: 120px;
+    width: 100%;
+    max-width: 200px;
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+
+  .selector-group label {
+    font-size: 0.9rem;
+  }
+
+  .workday-table {
+    min-width: 900px;
+    font-size: 10px;
+  }
+
+  .workday-table th,
+  .workday-table td {
+    padding: 5px 4px;
+  }
+
+  .col-name {
+    min-width: 120px;
+  }
+
+  .col-action {
+    min-width: 80px;
+  }
+
+  .col-expand {
+    width: 80px !important;
+  }
+
+  .detail-btn {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  .loading-message {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .page-container {
+    padding: 0.5rem;
+    max-height: calc(100vh - 160px);
+  }
+
+  .month-selector {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .selector-group {
+    width: 100%;
+  }
+
+  .selector-group label {
+    font-size: 0.85rem;
+    min-width: 50px;
+  }
+
+  .year-picker,
+  .month-picker-dropdown {
+    min-width: 100px;
+    font-size: 0.85rem;
+    padding: 6px 8px;
+  }
+
+  .workday-table {
+    min-width: 800px;
+    font-size: 9px;
+  }
+
+  .workday-table th,
+  .workday-table td {
+    padding: 3px 3px;
+  }
+
+  .col-name {
+    min-width: 100px;
+  }
+
+  .col-action {
+    min-width: 70px !important;
+  }
+
+  .detail-btn {
+    padding: 4px 6px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  /* Detail Modal Responsive */
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-content {
+    width: 95% !important;
+    max-width: none !important;
+  }
+
+  .detail-grid {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .detail-grid > div {
+    padding: 10px 8px !important;
+  }
+
+  .detail-grid > div > div:first-child {
+    font-size: 11px !important;
+  }
+
+  .detail-grid > div > div:last-child {
+    font-size: 12px !important;
+  }
+}
+
+/* ============================================================
+   INPUT WORK DAY PAGE RESPONSIVE STYLES
+   (src/pages/AdminPage/InputWorkDay/InputWorkDay.css)
+   ============================================================ */
+
+@media (max-width: 1021px) {
+  /* Large tablet */
+  .input-table {
+    min-width: 800px;
+  }
+
+  .user-dropdown {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Tablet breakpoint */
+  .page-container {
+    padding: 0.75rem;
+  }
+
+  .page-container h2 {
+    font-size: 1.3rem;
+  }
+
+  .user-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .user-selector label {
+    font-size: 0.9rem;
+  }
+
+  .user-dropdown {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .input-table {
+    min-width: 600px;
+    font-size: 11px;
+  }
+
+  .workday-table th,
+  .workday-table td {
+    padding: 5px 6px;
+  }
+
+  .button-container {
+    margin-right: 1.5rem;
+    gap: 0.75rem;
+  }
+
+  .save-button {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    height: 36px;
+    width: 90px;
+  }
+
+  .day-tick {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .page-container {
+    padding: 0.5rem;
+  }
+
+  .page-container h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .page-container p {
+    font-size: 0.85rem;
+  }
+
+  .user-selector {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .user-selector label {
+    font-size: 0.85rem;
+  }
+
+  .user-dropdown {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
+
+  .input-table {
+    min-width: 450px;
+    font-size: 10px;
+  }
+
+  .workday-table th,
+  .workday-table td {
+    padding: 4px 3px;
+  }
+
+  .button-container {
+    margin-right: 0.5rem;
+    margin-top: 0.75rem;
+    flex-direction: column;
+  }
+
+  .save-button {
+    width: 100%;
+    height: 40px;
+    font-size: 0.85rem;
+  }
+
+  .day-tick {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .total-input input,
+  .leave-input input {
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+}
+
+/* ============================================================
+   PROFILE PAGE RESPONSIVE STYLES
+   (src/pages/AdminPage/ProfilePage.css)
+   ============================================================ */
+
+@media (max-width: 1021px) {
+  /* Large tablet */
+  .profile-page-container {
+    gap: 3rem;
+  }
+
+  .profile-content {
+    width: 60vw;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Tablet breakpoint */
+  .profile-page-container {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .profile-page-container.layout-column {
+    align-items: center;
+  }
+
+  .manage-account {
+    width: 90vw;
+    max-width: 300px;
+  }
+
+  .profile-content {
+    width: 90vw;
+  }
+
+  .profile-page-container.layout-column .profile-content {
+    width: 90vw;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .profile-page-container {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .manage-account {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+  }
+
+  .profile-content {
+    width: 100%;
+  }
+
+  .profile-page-container.layout-column .profile-content {
+    width: 100%;
+  }
+
+  .profile-page-container > .manage-account {
+    flex-shrink: 1;
+  }
+}
+
+/* ============================================================
+   MANAGE PROFILE / CREATE USER RESPONSIVE STYLES
+   (src/pages/AdminPage/CreateUser/ManageProfile.css)
+   ============================================================ */
+
+@media (max-width: 1021px) {
+  /* Large tablet */
+  .manage-profile-container {
+    width: 100vw !important;
+  }
+
+  .form-row {
+    gap: 2rem;
+  }
+
+  .form-input,
+  .form-select {
+    width: 180px;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Tablet breakpoint */
+  .manage-profile-container {
+    width: 90vw;
+    padding: 0.75rem;
+    max-height: calc(100vh - 180px);
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .top-form-row {
+    flex-direction: column;
+  }
+
+  .form-input,
+  .form-select {
+    width: 100%;
+    height: 45px;
+    font-size: 0.9rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .button-container {
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .create-button,
+  .cancel-button,
+  .confirm-button {
+    font-size: 0.75rem;
+    height: 40px;
+    width: 100px;
+  }
+
+  .modal-content {
+    width: 95vw !important;
+    min-width: 0 !important;
+    max-width: 90vw !important;
+  }
+
+  .modal-input-row {
+    flex-direction: column !important;
+  }
+
+  .modal-input-row .form-group {
+    width: 100% !important;
+  }
+
+  .password-input {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .manage-profile-container {
+    width: 95vw;
+    padding: 0.5rem;
+    max-height: calc(100vh - 160px);
+  }
+
+  .form-row {
+    gap: 0.75rem;
+  }
+
+  .form-input,
+  .form-select {
+    width: 100%;
+    height: 42px;
+    font-size: 14px;
+    padding-left: 0.75rem;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .button-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .create-button,
+  .cancel-button,
+  .confirm-button {
+    width: 100%;
+    height: 40px;
+    font-size: 0.8rem;
+  }
+
+  .modal-content {
+    width: 98vw !important;
+    padding: 1.5rem !important;
+  }
+
+  .modal-header {
+    font-size: 1.2rem;
+  }
+
+  .modal-input-row {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+}
+
+/* ============================================================
+   AVATAR UPLOAD MODAL RESPONSIVE STYLES
+   (src/pages/AdminPage/Topbar/AvatarUploadModal.css)
+   ============================================================ */
+
+@media (max-width: 767px) {
+  /* Tablet breakpoint */
+  .modal-overlay {
+    padding: 15px;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-width: 450px;
+  }
+
+  .modal-header {
+    padding: 15px;
+  }
+
+  .modal-header h2 {
+    font-size: 16px;
+  }
+
+  .modal-body {
+    padding: 15px;
+  }
+
+  .preview-container {
+    width: 130px;
+    height: 130px;
+  }
+
+  .drag-drop-zone {
+    padding: 30px 15px;
+  }
+
+  .drag-drop-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .drag-drop-text {
+    font-size: 13px;
+  }
+
+  .modal-footer {
+    padding: 15px;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-content {
+    width: 98%;
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  .modal-header {
+    padding: 12px 15px;
+    flex-direction: row;
+  }
+
+  .modal-header h2 {
+    font-size: 15px;
+  }
+
+  .modal-body {
+    padding: 12px 15px;
+  }
+
+  .preview-section {
+    margin-bottom: 15px;
+  }
+
+  .preview-container {
+    width: 110px;
+    height: 110px;
+  }
+
+  .drag-drop-zone {
+    padding: 25px 12px;
+    border-width: 1.5px;
+  }
+
+  .drag-drop-icon {
+    width: 35px;
+    height: 35px;
+    margin-bottom: 8px;
+  }
+
+  .drag-drop-text {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .drag-drop-content {
+    gap: 8px;
+  }
+
+  .browse-button {
+    font-size: 12px;
+  }
+
+  .file-info {
+    font-size: 11px;
+  }
+
+  .modal-footer {
+    padding: 12px 15px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 12px;
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   MANAGE ACCOUNT RESPONSIVE STYLES
+   (src/pages/AdminPage/ManageAccount.css)
+   ============================================================ */
+
+@media (max-width: 767px) {
+  /* Tablet breakpoint */
+  .manage-account {
+    width: 280px;
+    max-width: 90vw;
+  }
+
+  .manage-account h2 {
+    font-size: 1.3rem;
+  }
+
+  .manage-account h3 {
+    font-size: 1rem;
+  }
+
+  .manage-account ul {
+    gap: 0.75rem;
+  }
+
+  .manage-account li {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile breakpoint */
+  .manage-account {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+  }
+
+  .manage-account h2 {
+    font-size: 1.1rem;
+  }
+
+  .manage-account h3 {
+    font-size: 0.95rem;
+  }
+
+  .manage-account ul {
+    margin-left: 1rem;
+    gap: 0.75rem;
+  }
+
+  .manage-account li {
+    font-size: 0.8rem;
+  }
+}
+
+/* ============================================================
+   GENERAL RESPONSIVE UTILITY CLASSES
+   ============================================================ */
+
+/* Hide/Show helpers for responsive design */
+@media (max-width: 767px) {
+  .hide-tablet {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Improved scrollbar visibility on smaller screens */
+@media (max-width: 480px) {
+  .main-content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .table-wrapper::-webkit-scrollbar {
+    height: 6px;
+  }
+}
+
+/* ============================================================
+   ORIENTATION & DEVICE TYPE ADAPTIVE STYLES
+   ============================================================ */
+
+/* Landscape mobile adjustments */
+@media (max-width: 767px) and (orientation: landscape) {
+  .main-content {
+    margin-top: 60px;
+    padding: 0.75rem;
+  }
+
+  .topbar {
+    height: 60px;
+  }
+
+  .page-container {
+    max-height: calc(100vh - 140px);
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1440px) {
+  .sidebar {
+    width: 300px;
+  }
+
+  .main-wrapper {
+    margin-left: 300px;
+  }
+
+  .topbar {
+    left: 300px;
+  }
+
+  .workday-table {
+    font-size: 13px;
+  }
+}

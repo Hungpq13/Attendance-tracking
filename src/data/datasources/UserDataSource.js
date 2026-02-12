@@ -63,4 +63,20 @@ export class UserDataSource {
       throw error.response?.data || error.message;
     }
   }
+
+  /**
+   * Lấy danh sách tất cả người dùng
+   * @returns {Promise<Array>} Danh sách người dùng
+   */
+  async getAllUsers() {
+    try {
+      console.log('📥 Lấy danh sách tất cả người dùng...');
+      const response = await userAxios.get('/users');
+      console.log('✅ Lấy danh sách người dùng thành công');
+      return response.data;
+    } catch (error) {
+      console.error('❌ Get all users API error:', error);
+      throw error.response?.data || error.message;
+    }
+  }
 }

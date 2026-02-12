@@ -12,6 +12,7 @@
   margin-left: 280px;
   margin-top: 0;
   overflow: hidden;
+  transition: margin-left 0.3s ease;
 }
 
 .main-content {
@@ -47,21 +48,22 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .main-wrapper {
-    margin-left: 250px;
+    margin-left: 0;
   }
 
   .main-content {
     padding: 1.5rem;
+    margin-top: 70px;
   }
 }
 
 @media (max-width: 480px) {
   .main-wrapper {
-    margin-left: 200px;
+    margin-left: 0;
   }
 
   .main-content {
     padding: 1rem;
-    margin-top: 70px;
+    margin-top: 60px;
   }
 }

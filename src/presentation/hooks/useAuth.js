@@ -53,7 +53,7 @@ export const useAuth = () => {
         saveUserToStorage(user);
       }
 
-      return { success: true, user };
+      return { success: true, user, response };
     } catch (err) {
       console.error('❌ Lỗi đăng nhập:', err);
       setError(err.message || 'Đăng nhập thất bại');
@@ -100,15 +100,9 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('🔒 Thay đổi mật khẩu...');
-
-      // Gọi use case thay đổi mật khẩu
       await changePasswordUseCase.execute(oldPassword, newPassword, confirmPassword);
-
-      console.log('✅ Thay đổi mật khẩu thành công!');
       return { success: true };
     } catch (err) {
-      console.error('❌ Lỗi thay đổi mật khẩu:', err);
       setError(err.message || 'Thay đổi mật khẩu thất bại');
       throw err;
     } finally {

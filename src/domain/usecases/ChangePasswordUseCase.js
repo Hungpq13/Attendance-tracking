@@ -16,7 +16,6 @@ export class ChangePasswordUseCase {
    */
   async execute(oldPassword, newPassword, confirmPassword) {
     try {
-      // Kiểm tra dữ liệu đầu vào
       if (!oldPassword || !newPassword || !confirmPassword) {
         throw new Error('Vui lòng nhập đầy đủ mật khẩu');
       }
@@ -25,15 +24,12 @@ export class ChangePasswordUseCase {
         throw new Error('Mật khẩu mới không khớp');
       }
 
-      if (newPassword.length < 6) {
-        throw new Error('Mật khẩu mới phải có ít nhất 6 ký tự');
+      if (newPassword.length < 8) {
+        throw new Error('Mật khẩu mới phải có ít nhất 8 ký tự');
       }
 
-      console.log('🔒 Thay đổi mật khẩu...');
       await this.authRepository.changePassword(oldPassword, newPassword, confirmPassword);
-      console.log('✅ Thay đổi mật khẩu thành công');
     } catch (error) {
-      console.error('❌ ChangePasswordUseCase error:', error);
       throw error;
     }
   }

@@ -1,6 +1,6 @@
 .page-container {
   padding: 1rem;
-  width: 100%;
+  width: 61vw;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -66,15 +66,17 @@
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: auto;
   background: #fff;
-  border: 1px solid #dbdfe6;
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid #d4dce6;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   flex: 1;
   margin-top: 1rem;
-  min-height: 300px;
-  max-height: calc(100vh - 400px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  cursor:pointer;
 }
 
 .workday-table {
@@ -97,36 +99,160 @@
 .workday-table thead th {
   background: #f8f9fa;
   font-weight: 600;
+
   color: #2c3e50;
   border-color: #d9e1e8;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .workday-table tbody tr:hover {
   background: #f8f9fa;
 }
 
+/* Div-based table layout */
+.div-table {
+  display: grid;
+  grid-template-columns: 100px 35px 140px 70px 80px 90px 90px 90px 90px 90px;
+  width: 100%;
+  font-size: 8px;
+  background: #fff;
+  flex: 1;
+  min-height: 100%;
+  align-content: start;
+}
+
+.div-header {
+  display: contents;
+}
+
+.header-cell {
+  font-size: 10px !important;
+  background: #f0f4f8;
+  font-weight: 700;
+  color: #1f2937;
+  border: 1px solid #d4dce6;
+  padding: 10px 8px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+}
+
+.div-body {
+  display: contents;
+}
+
+.div-row {
+  display: contents;
+}
+
+.div-row:hover .data-cell {
+  background: #f5f8fb;
+  border-color: #c7d2e0;
+}
+
+.data-cell {
+  border: 1px solid #e0e5eb;
+  padding: 10px 8px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #374151;
+}
+
+.empty-body {
+  grid-column: 1 / -1;
+  padding: 40px 20px !important;
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+  font-weight: 500;
+  border: 1px solid #dbdfe6;
+  background-color: #f9fafb;
+}
+
 .col-index {
-  width: 36px;
+  width: 35px;
+  text-align: center;
+  min-width: 35px;
 }
 
 .col-name {
-  min-width: 180px;
-}
-
-.col-role {
-  min-width: 120px;
+  min-width: 140px;
+  text-align: left;
+  padding-left: 12px;
 }
 
 .col-total {
   width: 70px;
+  text-align: left;
 }
 
-.col-days {
+.col-overtime {
+  width: 81px;
+  text-align: left;
+}
+
+.col-salary {
+  width: 90px;
+  text-align: left;
+
+  padding-right: 8px;
+}
+
+.col-allowance {
+  width: 90px;
+  text-align: left;
+
+  padding-right: 8px;
+}
+
+.col-total-salary {
+  width: 90px;
+  text-align: left;
+
+  padding-right: 8px;
   font-weight: 600;
+  
 }
 
-.col-leave {
-  min-width: 220px;
+.col-advance {
+  width: 90px;
+  text-align: left;
+
+  padding-right: 8px;
+}
+
+.col-remaining {
+  width: 90px;
+  text-align: left;
+  padding-right: 8px;
+  font-weight: 600;
+  color: #059669;
+}
+
+.col-action {
+  width: 100px;
+  text-align: center;
+  min-width: 100px;
+}
+
+
+.data-cell.col-name {
+  text-align: left;
+  padding-left: 12px;
+}
+
+.header-cell.col-name {
+  text-align: left;
+  padding-left: 12px;
 }
 
 .day-cell {
@@ -137,4 +263,32 @@
 .cell-left {
   text-align: left;
   padding-left: 12px;
+}
+
+.detail-btn {
+  padding: 6px 14px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
+}
+
+.detail-btn:hover {
+  background-color: #2563eb;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.detail-btn:active {
+  background-color: #1d4ed8;
+  transform: translateY(0);
+}
+
+.detail-btn:active {
+  background-color: #1d4ed8;
 }

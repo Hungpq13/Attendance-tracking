@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../presentation/hooks/useAuth';
+import ChangePasswordModal from '../AdminPage/Topbar/ChangePasswordModal';  
 import './Login.css';
 
 /**
@@ -11,6 +12,7 @@ function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const navigate = useNavigate();
   const formRef = useRef(null);
   
@@ -28,18 +30,23 @@ function Login() {
       alert('Vui lòng nhập tên đăng nhập và mật khẩu');
       return;
     }
-debugger ;
+
     try {
+      
       // Gọi login use case từ hook
       const result = await login(username, password);
       
-      if (result.success) {
-        console.log('🎯 Chuyển hướng đến /main...');
-        
-        // Chờ một chút để browser lưu password trước khi chuyển hướng
+      // Kiểm tra xem có cần đổi mật khẩu không (từ response)
+      if (result.response?.isForceChangePassword) {
+        // Nếu cần đổi mật khẩu, mở modal
+        setShowPasswordModal(true);
+      }  
+      if (!result.response?.isForceChangePassword)
+        {if (result.success) {
+       
         setTimeout(() => {
           navigate('/main', { replace: true });
-        }, 100);
+        }, 100);}
       }
     } catch (error) {
       console.error('❌ Lỗi đăng nhập:', error);
@@ -80,7 +87,7 @@ debugger ;
             className="toggle-password"
             title={showPassword ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
           >
-            {showPassword ? "👁️" : "👁️‍🗨️"}
+            <i className="fa-solid fa-eye"></i>
           </button>
           <span></span>
           <label htmlFor="password">Mật khẩu</label>
@@ -94,9 +101,12 @@ debugger ;
           disabled={loading}
         />
       </form>
+      <ChangePasswordModal 
+        isOpen={showPasswordModal} 
+        onClose={() => setShowPasswordModal(false)} 
+      />
     </div>
   );
 }
 
 export default Login;
- 

@@ -28,4 +28,12 @@ export class UserRepository extends IUserRepository {
   async updateProfile(profileData) {
     return this.dataSource.updateProfile(profileData);
   }
+
+  /**
+   * Lấy danh sách tất cả người dùng
+   * @returns {Promise<Array>}
+   */
+  async getAllUsers() {
+    return this.dataSource.getAllUsers();
+  }
 }

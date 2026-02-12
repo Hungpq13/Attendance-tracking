@@ -48,7 +48,16 @@ api.interceptors.request.use(
 // User API endpoints
 
 export const userAPI = {
- 
+  // Get all users
+  getAllUsers: async () => {
+    try {
+      const response = await api.get('/user');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // Get user profile by ID with Bearer token in Authorization header
   getProfile: async (id) => { 
     try {
@@ -67,6 +76,20 @@ export const userAPI = {
       throw error.response?.data || error.message;
     }
   },
+  createUser: async (userdata) => {
+    debugger;
+  try {
+    const token = localStorage.getItem(STORAGE_TOKEN);
+    if (!token) {
+      throw new Error('Không có accessToken. Vui lòng đăng nhập lại.');
+    }
+    
+    const response = await api.post('/user/create-auto', userdata);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+},
 };
 
 export const attendanceAPI = {
@@ -79,14 +102,7 @@ export const attendanceAPI = {
     }
   },
   
-  create: async (attendanceData) => {
-    try {
-      const response = await api.post('/attendance', attendanceData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
+  
   
   update: async (id, attendanceData) => {
     try {
@@ -109,6 +125,62 @@ export const attendanceAPI = {
   getStatistics: async () => {
     try {
       const response = await api.get('/attendance/statistics');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
+
+export const payrollAPI = {
+  // Calculate payroll for multiple employees
+  calculatePayroll: async (employees, month, year) => {
+    try {
+      // Create query string from employees array
+      const employeeIds = employees.map(emp => emp.id).join(',');
+      const params = new URLSearchParams({
+        month,
+        year,
+        ids: employeeIds
+      });
+      
+      const response = await api.get(
+        `/payroll/calculate?${params.toString()}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Calculate payroll for single employee
+  calculateSinglePayroll: async (employeeId, month, year) => {
+    try {
+      const params = new URLSearchParams({
+        month,
+        year
+      });
+      
+      const response = await api.get(
+        `/payroll/calculate/${employeeId}?${params.toString()}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get timesheet data for an employee
+  getTimesheetData: async (employeeId, month, year) => {
+    try {
+      const params = new URLSearchParams({
+        month,
+        year
+      });
+      
+      const response = await api.get(
+        `/payroll/timesheet/user/${employeeId}?${params.toString()}`
+      );
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

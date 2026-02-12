@@ -8,13 +8,17 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   max-height: calc(100vh - 200px);
   overflow-y: auto;
-  width : 45vw;
+  width : 50vw;
 }
 
 .form-row {
   display: flex;
   gap: 2.5rem;
 
+}
+
+.top-form-row {
+ justify-content: space-between;
 }
 
 .form-group {
@@ -150,8 +154,9 @@
 
 .modal-header {
   margin-bottom: 1rem;
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 1.3rem;
+  font-weight: bold;
+
 }
 
 .modal-buttons {

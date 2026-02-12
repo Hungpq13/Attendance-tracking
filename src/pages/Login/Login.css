@@ -43,6 +43,7 @@ form .txt_field {
   position: relative;
   border-bottom: 2px solid #adadad;
   margin: 30px 0;
+  
 }
 
 .txt_field input {
@@ -53,7 +54,9 @@ form .txt_field {
   border: none;
   background: none;
   outline: none;
-  caret-color: transparent;
+  
+   
+  
 }
 
 .txt_field label {
@@ -65,6 +68,7 @@ form .txt_field {
   font-size: 16px;
   pointer-events: none;
   transition: .5s;
+   
 }
 
 .txt_field span::before {
@@ -80,8 +84,10 @@ form .txt_field {
 
 .txt_field input:focus ~ label,
 .txt_field input:valid ~ label {
+  
   top: -5px;
   color: #2691d9;
+   
 }
 
 .txt_field input:focus ~ span::before,
@@ -130,14 +136,13 @@ input[type="submit"]:hover {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 18px;
-  padding: 4px 8px;
   color: #2691d9;
   transition: all 0.2s ease;
+  padding: 4px 8px;
+  font-size: 18px;
 }
 
 .toggle-password:hover {
   color: #1e5a96;
-  transform: translateY(-50%) scale(1.1);
 }
 

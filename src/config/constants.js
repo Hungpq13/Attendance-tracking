@@ -4,8 +4,9 @@
  */
 
 // API Configuration
-export const API_BASE_URL = '/api';
-// Sẽ được proxy qua Vite dev server đến: https://100.96.18.81:7085/api
+ //const API_BASE_URL = '/api';
+// Sẽ được proxy qua Vite dev server đến: 
+export const API_BASE_URL ='https://100.96.18.81:7085/api';
 
 // API Endpoints
 export const API_ENDPOINTS = {
@@ -17,6 +18,10 @@ export const API_ENDPOINTS = {
   // User
   GET_PROFILE: '/userProfile',
   UPDATE_PROFILE: '/user/profile',
+  
+  // Payroll
+  GET_SALARY_COMPONENTS: '/payroll/salary-structure/components',
+  GET_USER_SALARY_STRUCTURE: '/payroll/salary-structure/user',
 };
 
 // LocalStorage Keys
