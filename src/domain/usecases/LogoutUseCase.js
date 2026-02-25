@@ -15,11 +15,8 @@ export class LogoutUseCase {
    */
   async execute() {
     try {
-      console.log('📤 Gọi API logout (Browser sẽ tự động gửi refreshToken từ Cookie)...');
       await this.authRepository.logout();
-      console.log('✅ Backend logout thành công');
     } catch (error) {
-      console.error('❌ LogoutUseCase error:', error);
       // Tiếp tục logout cục bộ dù có lỗi API
     }
   }

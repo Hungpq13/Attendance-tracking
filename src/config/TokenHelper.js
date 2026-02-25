@@ -22,7 +22,6 @@ export const decodeToken = (token) => {
     );
     return decoded;
   } catch (error) {
-    console.error('❌ Lỗi decode token:', error);
     return null;
   }
 };
@@ -36,21 +35,18 @@ export const getUserFromToken = () => {
     // Lấy token từ localStorage
     const token = localStorage.getItem(STORAGE_TOKEN);
     if (!token) {
-      console.warn('⚠️ Không tìm thấy token');
       return null;
     }
 
     // Decode token
     const decoded = decodeToken(token);
     if (!decoded) {
-      console.warn('⚠️ Không thể decode token');
       return null;
     }
 
     // Kiểm tra token có hết hạn không
     const currentTime = Math.floor(Date.now() / 1000);
     if (decoded.exp && decoded.exp < currentTime) {
-      console.warn('⚠️ Token đã hết hạn');
       localStorage.removeItem(STORAGE_TOKEN);
       return null;
     }
@@ -65,7 +61,6 @@ export const getUserFromToken = () => {
       decoded.iat
     );
   } catch (error) {
-    console.error('❌ Lỗi lấy user từ token:', error);
     return null;
   }
 };
@@ -82,9 +77,7 @@ export const saveUserToStorage = (user) => {
       email: user.email,
       permissions: user.permissions,
     }));
-    console.log('✅ Lưu user vào storage thành công');
   } catch (error) {
-    console.error('❌ Lỗi lưu user:', error);
   }
 };
 
@@ -95,9 +88,7 @@ export const saveUserToStorage = (user) => {
 export const saveTokenToStorage = (token) => {
   try {
     localStorage.setItem(STORAGE_TOKEN, token);
-    console.log('✅ Lưu token vào storage thành công');
   } catch (error) {
-    console.error('❌ Lỗi lưu token:', error);
   }
 };
 
@@ -108,9 +99,7 @@ export const clearAuthStorage = () => {
   try {
     localStorage.removeItem(STORAGE_USER);
     localStorage.removeItem(STORAGE_TOKEN);
-    console.log('✅ Xóa auth storage thành công');
   } catch (error) {
-    console.error('❌ Lỗi xóa auth storage:', error);
   }
 };
 
@@ -121,9 +110,8 @@ export const clearAuthStorage = () => {
 export const saveTempTokenToStorage = (tempToken) => {
   try {
     localStorage.setItem('tempToken', tempToken);
-    console.log('✅ Lưu temp token vào storage thành công');
+
   } catch (error) {
-    console.error('❌ Lỗi lưu temp token:', error);
   }
 };
 
@@ -135,7 +123,6 @@ export const getTempToken = () => {
   try {
     return localStorage.getItem('tempToken');
   } catch (error) {
-    console.error('❌ Lỗi lấy temp token:', error);
     return null;
   }
 };
@@ -146,9 +133,7 @@ export const getTempToken = () => {
 export const clearTempToken = () => {
   try {
     localStorage.removeItem('tempToken');
-    console.log('✅ Xóa temp token thành công');
   } catch (error) {
-    console.error('❌ Lỗi xóa temp token:', error);
   }
 };
 

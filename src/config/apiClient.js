@@ -39,15 +39,14 @@ export const apiClient = async (url, options = {}) => {
         channel.postMessage({ type: 'TOKEN_EXPIRED' });
         channel.close();
       } catch (error) {
-        console.warn('BroadcastChannel không được hỗ trợ');
+        // Ignore BroadcastChannel errors
       }
       return Promise.reject("Unauthorized - Token expired");
     }
 
     return response;
   } catch (error) {
-    console.error('API Client Error:', error);
-    return Promise.reject(error);
+    throw error;
   }
 };
 

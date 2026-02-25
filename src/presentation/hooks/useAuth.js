@@ -27,14 +27,11 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('🔐 Bắt đầu quy trình đăng nhập...');
-
       // Gọi use case đăng nhập
       const response = await loginUseCase.execute(username, password);
 
       // Kiểm tra nếu require password change
       if (response.requirePasswordChange && response.tempToken) {
-        console.log('🔑 Cần đổi mật khẩu lần đầu');
         saveTempTokenToStorage(response.tempToken);
         
         return { 
@@ -47,8 +44,6 @@ export const useAuth = () => {
       if (!response || !response.accessToken) {
         throw new Error('Không nhận được token từ server');
       }
-
-      console.log('✅ Đăng nhập thành công!');
 
       // Lưu token vào localStorage
       saveTokenToStorage(response.accessToken);
@@ -68,7 +63,6 @@ export const useAuth = () => {
 
       return { success: true, user, response };
     } catch (err) {
-      console.error('❌ Lỗi đăng nhập:', err);
       setError(err.message || 'Đăng nhập thất bại');
       throw err;
     } finally {
@@ -83,9 +77,6 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('🔓 Bắt đầu quy trình đăng xuất...');
-      console.log('💡 Browser sẽ tự động gửi refreshToken từ HTTP-only Cookie');
-
       // Gọi use case đăng xuất
       // 💾 RefreshToken được gửi tự động bởi browser (withCredentials: true)
       await logoutUseCase.execute();
@@ -93,10 +84,8 @@ export const useAuth = () => {
       // Xóa tất cả auth data từ localStorage
       clearAuthStorage();
 
-      console.log('✅ Đăng xuất thành công!');
       return { success: true };
     } catch (err) {
-      console.error('❌ Lỗi đăng xuất:', err);
       // Vẫn xóa local data dù API gặp lỗi
       clearAuthStorage();
       setError(err.message || 'Đăng xuất thất bại');

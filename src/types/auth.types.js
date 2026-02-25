@@ -32,7 +32,6 @@ export const decodeToken = (token) => {
     );
     return decoded;
   } catch (error) {
-    console.error("Error decoding token:", error);
     return null;
   }
 };

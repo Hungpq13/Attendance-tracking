@@ -14,7 +14,6 @@ export class GetSalaryComponentsUseCase {
       const components = await this.payrollRepository.getSalaryComponents();
       return components;
     } catch (error) {
-      console.error('❌ Error in GetSalaryComponentsUseCase:', error);
       throw error;
     }
   }

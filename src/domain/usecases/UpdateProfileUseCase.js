@@ -18,11 +18,8 @@ export class UpdateProfileUseCase {
         throw new Error('Dữ liệu hồ sơ không hợp lệ');
       }
 
-      console.log('📝 Cập nhật hồ sơ người dùng...');
       await this.userRepository.updateProfile(profileData);
-      console.log('✅ Cập nhật hồ sơ thành công');
     } catch (error) {
-      console.error('❌ UpdateProfileUseCase error:', error);
       throw error;
     }
   }

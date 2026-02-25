@@ -14,7 +14,6 @@ export class GetUserSalaryStructureUseCase {
       const salaryStructure = await this.payrollRepository.getUserSalaryStructure(userId);
       return salaryStructure;
     } catch (error) {
-      console.error('❌ Error in GetUserSalaryStructureUseCase:', error);
       throw error;
     }
   }

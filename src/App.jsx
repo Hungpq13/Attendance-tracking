@@ -62,7 +62,6 @@ function AppContent() {
       };
       return () => channel.close();
     } catch (error) {
-      console.warn('BroadcastChannel không được hỗ trợ');
     }
   }, [navigate]);
 

@@ -46,12 +46,6 @@ export const handleErrorGracefully = (error, navigate, customMessage = null) => 
   const errorStack = error?.stack || '';
   const errorCode = error?.code || '500';
 
-  console.error('[Error Handler]', {
-    message: errorMessage,
-    code: errorCode,
-    stack: errorStack,
-  });
-
   // Navigate to error page
   navigateToError(navigate, errorMessage, errorCode, errorStack);
 };

@@ -18,7 +18,6 @@ export class GetProfileUseCase {
         throw new Error('ID người dùng không hợp lệ');
       }
 
-      console.log('📥 Lấy hồ sơ người dùng:', userId);
       const profile = await this.userRepository.getProfile(userId);
 
       if (!profile) {
@@ -27,7 +26,6 @@ export class GetProfileUseCase {
 
       return profile;
     } catch (error) {
-      console.error('❌ GetProfileUseCase error:', error);
       throw error;
     }
   }

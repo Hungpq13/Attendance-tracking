@@ -182,7 +182,6 @@ function InputWorkDay() {
       }
       return {};
     } catch (error) {
-      console.error('Error loading timesheetData from localStorage:', error);
       return {};
     }
   });
@@ -192,7 +191,6 @@ function InputWorkDay() {
     try {
       localStorage.setItem('timesheetData', JSON.stringify(timesheetData));
     } catch (error) {
-      console.error('Error saving timesheetData to localStorage:', error);
     }
   }, [timesheetData]);
 
@@ -211,7 +209,6 @@ function InputWorkDay() {
       const saved = localStorage.getItem('salaryData');
       return saved ? JSON.parse(saved) : {};
     } catch (error) {
-      console.error('Error loading salaryData from localStorage:', error);
       return {};
     }
   });
@@ -221,7 +218,6 @@ function InputWorkDay() {
     try {
       localStorage.setItem('salaryData', JSON.stringify(salaryData));
     } catch (error) {
-      console.error('Error saving salaryData to localStorage:', error);
     }
   }, [salaryData]);
 
@@ -253,35 +249,24 @@ function InputWorkDay() {
   useEffect(() => {
     if (!editingUserId) return;
 
-    console.log('[useEffect] editingUserId changed to:', editingUserId);
-    console.log('[useEffect] Fetching fresh data from API');
-    console.log('[useEffect] selectedMonth:', selectedMonth, 'selectedYear:', selectedYear);
-
-    // Always fetch timesheet data
-    console.log('[useEffect] Fetching timesheet data for user:', editingUserId);
     payrollAPI.getTimesheetData(editingUserId, selectedMonth, selectedYear)
       .then(apiData => {
-        console.log('[useEffect] Timesheet API response:', apiData);
         
         let timesheetArray = [];
         
         // Handle different response formats
         if (Array.isArray(apiData)) {
           timesheetArray = apiData;
-          console.log('[useEffect] Response is array with', apiData.length, 'items');
         } else if (apiData && typeof apiData === 'object' && apiData.data && Array.isArray(apiData.data)) {
           timesheetArray = apiData.data;
-          console.log('[useEffect] Response has nested data array with', apiData.data.length, 'items');
         } else if (apiData && typeof apiData === 'object') {
           timesheetArray = Object.entries(apiData).map(([date, data]) => ({
             workDate: date,
             ...data
           }));
-          console.log('[useEffect] Response is object - converted to array with', timesheetArray.length, 'items');
         }
         
         if (timesheetArray && timesheetArray.length > 0) {
-          console.log('[useEffect] Processing timesheet array with', timesheetArray.length, 'items');
           const timesheetMap = {};
           timesheetArray.forEach((item, index) => {
             const dateKey = item.workDate ? item.workDate.split('T')[0] : null;
@@ -293,7 +278,6 @@ function InputWorkDay() {
               };
             }
           });
-          console.log('[useEffect] Final timesheetMap:', timesheetMap);
           
           const daysInMonth = getMonthDays(selectedYear, selectedMonth);
           const monthData = {};
@@ -312,8 +296,6 @@ function InputWorkDay() {
             [editingUserId]: monthData
           }));
         } else {
-          console.log('[useEffect] No timesheet data returned from API, using empty defaults');
-          
           const daysInMonth = getMonthDays(selectedYear, selectedMonth);
           const monthData = {};
           for (let day = 1; day <= daysInMonth; day++) {
@@ -333,50 +315,41 @@ function InputWorkDay() {
         }
       })
       .catch(error => {
-        console.error('[useEffect] Error fetching timesheet data:', error);
+        // Timesheet fetch error handling
       });
 
     // Always fetch salary data
-    console.log('[useEffect] Fetching salary data for user:', editingUserId);
     payrollAPI.getSalaryStructure(editingUserId)
       .then(apiSalaryData => {
-        console.log('[useEffect] Salary API response:', apiSalaryData);
         
         let salaryArray = [];
         
         // Handle different response formats
         if (Array.isArray(apiSalaryData)) {
           salaryArray = apiSalaryData;
-          console.log('[useEffect] Salary response is array with', apiSalaryData.length, 'items');
         } else if (apiSalaryData && typeof apiSalaryData === 'object' && apiSalaryData.data && Array.isArray(apiSalaryData.data)) {
           salaryArray = apiSalaryData.data;
-          console.log('[useEffect] Salary response has nested data array with', apiSalaryData.data.length, 'items');
         } else if (apiSalaryData && typeof apiSalaryData === 'object') {
           salaryArray = Object.entries(apiSalaryData).map(([code, amount]) => ({
             componentCode: code,
             amount: amount
           }));
-          console.log('[useEffect] Salary response is object - converted to array with', salaryArray.length, 'items');
         }
         
         if (salaryArray && salaryArray.length > 0) {
-          console.log('[useEffect] Processing salary array with', salaryArray.length, 'items');
           const salaryMap = {};
           salaryArray.forEach((item, index) => {
             const component = salaryComponents.find(c => c.code === item.componentCode);
             if (component) {
               salaryMap[component.id] = item.amount || 0;
-              console.log('[useEffect] Set', component.label, '=', item.amount);
             }
           });
-          console.log('[useEffect] Final salaryMap:', salaryMap);
           
           setSalaryData(prev => ({
             ...prev,
             [editingUserId]: salaryMap
           }));
         } else {
-          console.log('[useEffect] No salary data returned from API');
           setSalaryData(prev => ({
             ...prev,
             [editingUserId]: {}
@@ -384,13 +357,12 @@ function InputWorkDay() {
         }
       })
       .catch(error => {
-        console.error('[useEffect] Error fetching salary data:', error);
+        // Salary data fetch error handling
       });
   }, [editingUserId, selectedMonth, selectedYear]);
 
   // Handle user selection - triggers data fetch via useEffect
   const handleSelectUser = (user) => {
-    console.log('[handleSelectUser] Selected user:', user);
     
     // Reset changes flag when selecting a new user
     setHasChanges(false);
@@ -417,8 +389,6 @@ function InputWorkDay() {
     setEditingUserId(user.id);
     setShowModal(true);
     setShowDropdown(false);
-    
-    console.log('[handleSelectUser] User added and modal opened');
   };
 
   const handleSearchChange = (e) => {
@@ -428,8 +398,6 @@ function InputWorkDay() {
 
   const handleTimesheetChange = (dateKey, field, value) => {
     const numValue = field === 'note' ? value : (parseFloat(value) || 0);
-    
-    console.log(`[handleTimesheetChange] Date: ${dateKey}, Field: ${field}, Value: ${value}, NumValue: ${numValue}`);
     
     setHasChanges(true); // Đánh dấu có thay đổi
     setTimesheetData({
@@ -451,11 +419,6 @@ function InputWorkDay() {
       return;
     }
 
-    console.log('[handleSave] editingUserId:', editingUserId);
-    console.log('[handleSave] selectedUser:', selectedUser);
-    console.log('[handleSave] Full timesheetData:', JSON.stringify(timesheetData, null, 2));
-    console.log('[handleSave] currentTimesheetData for this user:', JSON.stringify(currentTimesheetData, null, 2));
-
     try {
       const daysInMonth = getMonthDays(selectedYear, selectedMonth);
       let successCount = 0;
@@ -468,11 +431,8 @@ function InputWorkDay() {
       Object.keys(currentTimesheetData).forEach(dateKey => {
         const dayData = currentTimesheetData[dateKey];
 
-        console.log(`[handleSave] Processing dateKey: ${dateKey}, dayData =`, dayData);
-
         // Skip if not marked as changed
         if (!dayData.changed) {
-          console.log(`[saveTimesheet] Skipping ${dateKey} - not changed`);
           return;
         }
 
@@ -482,15 +442,12 @@ function InputWorkDay() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         if (dateObj > today) {
-          console.log(`[saveTimesheet] Skipping ${dateKey} - future date`);
           return; // Skip future dates
         }
 
         // If changed: true, post regardless of data values (including 0,0,0)
         const standardWorkDays = dayData.standardWorkDays !== undefined ? dayData.standardWorkDays : 0;
         const overtimeHours = dayData.overtimeHours !== undefined ? dayData.overtimeHours : 0;
-
-        console.log(`[saveTimesheet] Processing ${dateKey}:`, dayData);
 
         timesheetItems.push({
           workDate: dateKey,
@@ -503,14 +460,9 @@ function InputWorkDay() {
       // Save all timesheet entries in bulk if there are any
       if (timesheetItems.length > 0) {
         try {
-          console.log(`[saveTimesheet] Saving ${timesheetItems.length} timesheet items using bulk endpoint`);
-          console.log(`[saveTimesheet] Employee ID being sent: ${editingUserId}`);
-          console.log(`[saveTimesheet] Selected user: ${selectedUser?.fullName} (${selectedUser?.id})`);
-          console.log(`[saveTimesheet] Timesheet items to send:`, JSON.stringify(timesheetItems, null, 2));
           
           await payrollAPI.saveTimesheetBulk(editingUserId, timesheetItems);
           successCount = timesheetItems.length;
-          console.log('[saveTimesheet] Bulk save successful');
         } catch (error) {
           failureCount = timesheetItems.length;
           const errorMsg = error?.message || JSON.stringify(error) || 'Lỗi không xác định';
@@ -519,14 +471,8 @@ function InputWorkDay() {
             itemCount: timesheetItems.length,
             error: errorMsg
           });
-          console.error(`[Timesheet Bulk Save Error]`, {
-            itemCount: timesheetItems.length,
-            error,
-            errorMsg
-          });
         }
       } else {
-        console.log('[saveTimesheet] No valid timesheet items to save');
       }
 
       // Save salary components
@@ -550,13 +496,6 @@ function InputWorkDay() {
         try {
           await payrollAPI.saveSalaryComponent(salaryPayload);
           salarySaveCount++;
-          // Format amount as Vietnamese currency for logging
-          const formattedAmount = new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-            minimumFractionDigits: 0
-          }).format(amount);
-          console.log(`[Salary Save Success] Component: ${component.label}, Amount: ${formattedAmount}`, salaryPayload);
         } catch (error) {
           salaryFailCount++;
           const errorMsg = error?.message || JSON.stringify(error) || 'Lỗi không xác định';
@@ -564,11 +503,6 @@ function InputWorkDay() {
             component: component.label,
             payload: salaryPayload,
             error: errorMsg
-          });
-          console.error(`[Salary Save Error] Component: ${component.label}`, {
-            payload: salaryPayload,
-            error,
-            errorMsg
           });
         }
       }
@@ -622,10 +556,8 @@ function InputWorkDay() {
       }
 
       if (failureCount > 0 || salaryFailCount > 0) {
-        console.warn('Some saves failed', { errors, salaryErrors });
       }
     } catch (error) {
-      console.error('[Timesheet Save Fatal Error]', error);
       showToast("Lỗi khi lưu dữ liệu!", "error");
     }
   };
@@ -707,7 +639,6 @@ function InputWorkDay() {
             value={selectedYear}
             onChange={(e) => {
               const newYear = parseInt(e.target.value);
-              console.log('[Year Change] Selected year changed to:', newYear);
               setSelectedYear(newYear);
             }}
           >
@@ -726,11 +657,9 @@ function InputWorkDay() {
             value={selectedMonth}
             onChange={(e) => {
               const newMonth = parseInt(e.target.value);
-              console.log('[Month Change] Selected month changed to:', newMonth);
               if (isFutureDate(selectedYear, newMonth)) {
                 showToast(`Không được nhập dữ liệu cho tháng trong tương lai`, "error");
               } else {
-                console.log('[Month Change] Setting selectedMonth to:', newMonth);
                 setSelectedMonth(newMonth);
               }
             }}

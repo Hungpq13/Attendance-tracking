@@ -64,7 +64,7 @@ api.interceptors.response.use(
         channel.postMessage({ type: 'TOKEN_EXPIRED' });
         channel.close();
       } catch (err) {
-        console.warn('BroadcastChannel not supported');
+        // Ignore BroadcastChannel errors
       }
     }
     return Promise.reject(error);
@@ -252,36 +252,14 @@ export const payrollAPI = {
   // Get timesheet data for an employee
   getTimesheetData: async (employeeId, month, year) => {
     try {
-      console.log('[payrollAPI] getTimesheetData called');
-      console.log('[payrollAPI] employeeId:', employeeId);
-      console.log('[payrollAPI] month:', month, 'type:', typeof month);
-      console.log('[payrollAPI] year:', year, 'type:', typeof year);
-      
       // Build endpoint with month and year as query parameters
       const endpoint = `/payroll/timesheet/user/${employeeId}?month=${month}&year=${year}`;
-      const fullUrl = API_BASE_URL + endpoint;
-      
-      console.log('[payrollAPI] Full endpoint:', endpoint);
-      console.log('[payrollAPI] Full URL:', fullUrl);
-      console.log('[payrollAPI] Calling API.get()...');
       
       const response = await api.get(endpoint);
-      
-      console.log('[payrollAPI] ✓ Response received');
-      console.log('[payrollAPI] Status:', response.status);
-      console.log('[payrollAPI] Data:', response.data);
-      console.log('[payrollAPI] Data type:', typeof response.data);
-      console.log('[payrollAPI] Is array?', Array.isArray(response.data));
       
       return response.data;
       
     } catch (error) {
-      console.error('[payrollAPI] ✗ Error fetching timesheet data');
-      console.error('[payrollAPI] Error message:', error.message);
-      console.error('[payrollAPI] Error status:', error.response?.status);
-      console.error('[payrollAPI] Error data:', error.response?.data);
-      console.error('[payrollAPI] Full error:', error);
-      
       // Return empty array on error
       return [];
     }
@@ -302,10 +280,6 @@ export const payrollAPI = {
   // Save single timesheet entry
   saveTimesheet: async (timesheetData) => {
     try {
-      console.log('[saveTimesheet] Sending payload:', JSON.stringify(timesheetData, null, 2));
-      console.log('[saveTimesheet] Employee ID in payload:', timesheetData.id);
-      const response = await api.post('/payroll/timesheet', timesheetData);
-      console.log('[saveTimesheet] Success response:', response.data);
       return response.data;
     } catch (error) {
       const errorDetail = {
@@ -314,10 +288,6 @@ export const payrollAPI = {
         message: error.message,
         payload: timesheetData
       };
-      console.error('[saveTimesheet] Error:', errorDetail);
-      if (error.response?.data?.errors) {
-        console.error('[saveTimesheet] Validation errors:', error.response.data.errors);
-      }
       throw errorDetail;
     }
   },
@@ -329,29 +299,17 @@ export const payrollAPI = {
         id: employeeId,
         items: timesheetItems
       };
-      console.log('[saveTimesheetBulk] ======== BULK SAVE START ========');
-      console.log('[saveTimesheetBulk] Payload structure:');
-      console.log('[saveTimesheetBulk]   id:', payload.id);
-      console.log('[saveTimesheetBulk]   items.length:', payload.items.length);
-      console.log('[saveTimesheetBulk] Full payload:', JSON.stringify(payload, null, 2));
-      console.log('[saveTimesheetBulk] Endpoint: POST /payroll/timesheet/bulk');
+
       
       const response = await api.post('/payroll/timesheet/bulk', payload);
-      console.log('[saveTimesheetBulk] ======== BULK SAVE SUCCESS ========');
-      console.log('[saveTimesheetBulk] Response:', response.data);
       return response.data;
     } catch (error) {
-      console.log('[saveTimesheetBulk] ======== BULK SAVE FAILED ========');
       const errorDetail = {
         status: error.response?.status,
         data: error.response?.data,
         message: error.message,
         payload: { employeeId, itemCount: timesheetItems.length }
       };
-      console.error('[saveTimesheetBulk] Error:', errorDetail);
-      if (error.response?.data?.errors) {
-        console.error('[saveTimesheetBulk] Validation errors:', error.response.data.errors);
-      }
       throw errorDetail;
     }
   },
@@ -359,9 +317,7 @@ export const payrollAPI = {
   // Save salary component
   saveSalaryComponent: async (salaryData) => {
     try {
-      console.log('[saveSalaryComponent] Sending payload:', salaryData);
       const response = await api.post('/payroll/salary-structure', salaryData);
-      console.log('[saveSalaryComponent] Success response:', response.data);
       return response.data;
     } catch (error) {
       const errorDetail = {
@@ -370,10 +326,6 @@ export const payrollAPI = {
         message: error.message,
         payload: salaryData
       };
-      console.error('[saveSalaryComponent] Error:', errorDetail);
-      if (error.response?.data?.errors) {
-        console.error('[saveSalaryComponent] Validation errors:', error.response.data.errors);
-      }
       throw errorDetail;
     }
   },

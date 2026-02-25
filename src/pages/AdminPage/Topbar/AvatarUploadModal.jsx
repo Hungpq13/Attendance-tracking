@@ -96,7 +96,6 @@ function AvatarUploadModal({ isOpen, onClose, onUpload, currentAvatar }) {
       onClose();
       
     } catch (error) {
-      console.error('Error uploading avatar:', error);
       showToast(
         error.response?.data?.message || 'Lỗi khi tải ảnh lên',
         'error'

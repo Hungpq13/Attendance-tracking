@@ -25,8 +25,6 @@ export const useUser = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('📥 Lấy thông tin hồ sơ...');
-
       // Lấy user ID từ token
       const user = getUserFromToken();
       if (!user) {
@@ -37,10 +35,7 @@ export const useUser = () => {
       const data = await getProfileUseCase.execute(user.id);
       setProfile(data);
 
-      console.log('✅ Lấy hồ sơ thành công!');
       return data;
-    } catch (err) {
-      console.error('❌ Lỗi lấy hồ sơ:', err);
       setError(err.message || 'Lấy hồ sơ thất bại');
       throw err;
     } finally {
@@ -55,13 +50,9 @@ export const useUser = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('📥 Lấy thông tin hồ sơ cá nhân...');
       const data = await userRepository.getProfileMe();
       setProfile(data);
-      console.log('✅ Lấy hồ sơ cá nhân thành công!');
       return data;
-    } catch (err) {
-      console.error('❌ Lỗi lấy hồ sơ cá nhân:', err);
       setError(err.message || 'Lấy hồ sơ cá nhân thất bại');
       throw err;
     } finally {
@@ -76,18 +67,13 @@ export const useUser = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('📝 Cập nhật hồ sơ...');
-
       // Gọi use case cập nhật hồ sơ
       await updateProfileUseCase.execute(profileData);
 
       // Cập nhật local state
       setProfile(profileData);
 
-      console.log('✅ Cập nhật hồ sơ thành công!');
       return { success: true };
-    } catch (err) {
-      console.error('❌ Lỗi cập nhật hồ sơ:', err);
       setError(err.message || 'Cập nhật hồ sơ thất bại');
       throw err;
     } finally {
@@ -102,12 +88,8 @@ export const useUser = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('📝 Cập nhật thông tin cá nhân...');
       await userRepository.updateProfileMe(profileData);
-      console.log('✅ Cập nhật thành công!');
       return { success: true };
-    } catch (err) {
-      console.error('❌ Lỗi cập nhật:', err);
       setError(err.message || 'Cập nhật thất bại');
       throw err;
     } finally {
@@ -122,12 +104,8 @@ export const useUser = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('📝 Cập nhật thông tin người dùng...');
       await userRepository.updateUser(userId, userData);
-      console.log('✅ Cập nhật thành công!');
       return { success: true };
-    } catch (err) {
-      console.error('❌ Lỗi cập nhật:', err);
       setError(err.message || 'Cập nhật thất bại');
       throw err;
     } finally {

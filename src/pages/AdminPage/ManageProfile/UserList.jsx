@@ -67,7 +67,6 @@ function UserList() {
       setUsers(allUsers);
     } catch (error) {
       showToast('Lỗi khi tải danh sách người dùng', 'error');
-      console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
     }
@@ -145,7 +144,6 @@ function UserList() {
       setSelectedUserId(null);
     } catch (error) {
       showToast('Lỗi khi xóa người dùng', 'error');
-      console.error('Error deactivating user:', error);
     } finally {
       setIsDeactivating(false);
     }
@@ -233,10 +231,8 @@ function UserList() {
       
       setEditingUser(mappedUser);
       setOriginalEditingUser(mappedUser);
-      console.log('✅ User profile loaded:', mappedUser);
     } catch (error) {
       showToast('Lỗi khi tải thông tin người dùng', 'error');
-      console.error('Error fetching user profile:', error);
     } finally {
       setIsLoadingProfile(false);
     }
@@ -288,7 +284,6 @@ function UserList() {
       setOriginalEditingUser(null);
     } catch (error) {
       showToast('Lỗi khi cập nhật thông tin người dùng', 'error');
-      console.error('Error updating user:', error);
     } finally {
       setIsSavingEdit(false);
     }

@@ -26,7 +26,6 @@ export const usePayroll = () => {
       setSalaryComponents(components);
     } catch (err) {
       setError(err.message || 'Có lỗi khi lấy thành phần lương');
-      console.error('❌ Error fetching salary components:', err);
     } finally {
       setLoading(false);
     }
@@ -40,25 +39,19 @@ export const usePayroll = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('🔄 [usePayroll] Fetching salary structure for user:', userId);
       const salaryStructure = await getUserSalaryStructureUseCase.execute(userId);
-      
-      console.log('📊 [usePayroll] Response received:', salaryStructure);
       
       // Nếu API trả về array, return trực tiếp
       if (Array.isArray(salaryStructure)) {
-        console.log('✅ [usePayroll] Returning array format');
         return salaryStructure;
       }
       
       // Nếu là object, chuyển thành array
-      console.log('⚠️ [usePayroll] Converting object to array format');
       const structureArray = Object.values(salaryStructure);
       setUserSalaryStructure(structureArray);
       return structureArray;
     } catch (err) {
       setError(err.message || 'Có lỗi khi lấy cơ cấu lương');
-      console.error('❌ [usePayroll] Error fetching user salary structure:', err);
       return [];
     } finally {
       setLoading(false);

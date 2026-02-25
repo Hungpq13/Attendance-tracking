@@ -39,7 +39,6 @@ export class LoginUseCase {
 
       return result;
     } catch (error) {
-      console.error('❌ LoginUseCase error:', error);
       throw error;
     }
   }

@@ -19,14 +19,9 @@ payrollAxios.interceptors.request.use(
   (config) => {
     // Lấy access token từ localStorage
     const token = localStorage.getItem(STORAGE_TOKEN);
-    console.log(`🔐 [PayrollAxios] Token from localStorage:`, token ? '✅ Present' : '❌ Missing');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('✅ [PayrollAxios] Authorization header added');
-    } else {
-      console.warn('⚠️ [PayrollAxios] No token found in localStorage');
     }
-    console.log('🌐 [PayrollAxios] Request URL:', config.baseURL + config.url);
     return config;
   },
   (error) => {
@@ -41,12 +36,9 @@ export class PayrollDataSource {
    */
   async getSalaryComponents() {
     try {
-      console.log('📥 Lấy danh sách thành phần lương...');
       const response = await payrollAxios.get(API_ENDPOINTS.GET_SALARY_COMPONENTS);
-      console.log('✅ Lấy thành phần lương thành công:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ Get salary components API error:', error);
       throw error.response?.data || error.message;
     }
   }
@@ -59,16 +51,9 @@ export class PayrollDataSource {
   async getUserSalaryStructure(userId) {
     try {
       const endpoint = `${API_ENDPOINTS.GET_USER_SALARY_STRUCTURE}?id=${userId}`;
-      console.log(`📥 [DataSource] Fetching salary structure from: ${endpoint}`);
       const response = await payrollAxios.get(endpoint);
-      console.log('✅ [DataSource] Salary structure API response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ [DataSource] Get user salary structure API error:', error);
-      if (error.response) {
-        console.error('❌ [DataSource] Response status:', error.response.status);
-        console.error('❌ [DataSource] Response data:', error.response.data);
-      }
       throw error.response?.data || error.message;
     }
   }

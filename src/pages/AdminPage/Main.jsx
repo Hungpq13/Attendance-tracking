@@ -49,7 +49,6 @@ function Main() {
           }
         })
         .catch((err) => {
-          console.error('❌ Lỗi lấy profile:', err);
           // Fallback: sử dụng username nếu không lấy được fullName
           setUser(prev => ({
             ...prev,
@@ -89,7 +88,6 @@ function Main() {
       };
       return () => channel.close();
     } catch (error) {
-      console.warn('BroadcastChannel không được hỗ trợ');
     }
   }, [navigate]);
 
@@ -140,7 +138,6 @@ function Main() {
         setAvatar(profileData.avatarUrl);
       }
     } catch (err) {
-      console.error('❌ Lỗi tải lại hồ sơ:', err);
     }
   };
 
