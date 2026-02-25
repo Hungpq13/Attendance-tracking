@@ -113,6 +113,46 @@ export const userAPI = {
     }
   },
 
+  // Update user information
+  updateUser: async (userId, userData) => {
+    try {
+      const response = await api.put(`/user/${userId}`, userData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Get user profile from /userProfile/{id}
+  getUserProfile: async (userId) => {
+    try {
+      const response = await api.get(`/userProfile/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Update profile via /userProfile/me
+  updateProfileMe: async (profileData) => {
+    try {
+      const response = await api.put('/userProfile/me', profileData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Update user profile via /userProfile/{id}
+  updateUserProfile: async (userId, profileData) => {
+    try {
+      const response = await api.put(`/userProfile/${userId}`, profileData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // Upload avatar file
   uploadAvatar: async (file) => {
     try {
@@ -154,47 +194,23 @@ export const userAPI = {
     throw error.response?.data || error.message;
   }
 },
+
+createUserWithPassword: async (userdata) => {
+  try {
+    const token = localStorage.getItem(STORAGE_TOKEN);
+    if (!token) {
+      throw new Error('Không có accessToken. Vui lòng đăng nhập lại.');
+    }
+    
+    const response = await api.post('/user', userdata);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+},
 };
 
-export const attendanceAPI = {
-  getAll: async () => {
-    try {
-      const response = await api.get('/attendance');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-  
-  
-  
-  update: async (id, attendanceData) => {
-    try {
-      const response = await api.put(`/attendance/${id}`, attendanceData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-  
-  delete: async (id) => {
-    try {
-      const response = await api.delete(`/attendance/${id}`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-  
-  getStatistics: async () => {
-    try {
-      const response = await api.get('/attendance/statistics');
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
-};
+
 
 export const payrollAPI = {
   // Calculate payroll for multiple employees

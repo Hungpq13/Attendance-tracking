@@ -199,13 +199,13 @@
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, #667eea 0%, #5568d3 100%);
+  background: #1173be;
   transition: all 0.3s ease;
 }
 
 .employee-card:hover {
-  border-color: #667eea;
-  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.15), 0 2px 4px rgba(102, 126, 234, 0.1);
+  border-color: #1173be;
+  box-shadow: 0 8px 16px rgba(17, 115, 190, 0.15), 0 2px 4px rgba(17, 115, 190, 0.1);
   transform: translateY(-2px);
   background: linear-gradient(135deg, #ffffff 0%, #f3f4ff 100%);
 }
@@ -257,7 +257,7 @@
 
 .employee-card-button {
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+  background-color: #1173be;
   color: white;
   border: none;
   border-radius: 8px;
@@ -270,18 +270,18 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 2px 6px rgba(17, 115, 190, 0.2);
 }
 
 .employee-card-button:hover {
-  background: linear-gradient(135deg, #5568d3 0%, #4656b8 100%);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
+  background-color: #0d5fa3;
+  box-shadow: 0 6px 16px rgba(17, 115, 190, 0.35);
   transform: translateY(-2px);
 }
 
 .employee-card-button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 2px 6px rgba(17, 115, 190, 0.2);
 }
 
 .employee-cards-container {

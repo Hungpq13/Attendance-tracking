@@ -7,16 +7,26 @@ function UserList() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterActive, setFilterActive] = useState(true);
+  const [filterInactive, setFilterInactive] = useState(true);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isDeactivating, setIsDeactivating] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [isEditingMode, setIsEditingMode] = useState(false);
+  const [originalEditingUser, setOriginalEditingUser] = useState(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const itemsPerPage = 10;
   const { showToast } = useToast();
   const tableWrapperRef = useRef(null);
+  const filterMenuRef = useRef(null);
 
   // Fetch users from API
-  useEffect(() => {
+  useEffect(() => { 
     fetchUsers();
   }, []);
 
@@ -27,13 +37,33 @@ function UserList() {
     }
   }, [currentPage]);
 
+  // Close filter menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
+        setShowFilterMenu(false);
+      }
+    };
+
+    if (showFilterMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showFilterMenu]);
+
+  // Fetch user profile when modal opens
+  useEffect(() => {
+    if (showEditModal && editingUser && !isEditingMode) {
+      handleStartEditing();
+    }
+  }, [showEditModal]);
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
       const response = await userAPI.getAllUsers();
       const allUsers = response.data || response;
-      //  Filter: chỉ show users có isActive = 1
-    //  const activeUsers = allUsers.filter(user => user.isActive === 1 || user.isActive === true);
+     
       setUsers(allUsers);
     } catch (error) {
       showToast('Lỗi khi tải danh sách người dùng', 'error');
@@ -43,12 +73,22 @@ function UserList() {
     }
   };
 
-  // Filter users based on search term
-  const filteredUsers = users.filter(user =>
-    user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter users based on search term and status
+  const filteredUsers = users.filter(user => {
+    // Search filter
+    const matchesSearch = 
+      user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Status filter - show based on checked boxes
+    const matchesStatus = 
+      (filterActive && filterInactive) || // Both checked: show all
+      (filterActive && user.isActive) ||  // Only active checked
+      (filterInactive && !user.isActive); // Only inactive checked
+    
+    return matchesSearch && matchesStatus;
+  });
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -62,6 +102,17 @@ function UserList() {
     setCurrentPage(1);
   };
 
+  // Handle checkbox filter changes
+  const handleFilterActiveChange = (e) => {
+    setFilterActive(e.target.checked);
+    setCurrentPage(1);
+  };
+
+  const handleFilterInactiveChange = (e) => {
+    setFilterInactive(e.target.checked);
+    setCurrentPage(1);
+  };
+
   const handleDeleteUser = (userId) => {
     setSelectedUserId(userId);
     setShowConfirmModal(true);
@@ -72,7 +123,7 @@ function UserList() {
 
     try {
       setIsDeactivating(true);
-      //  Gọi API để set isActive = 0 (soft delete)
+    
       await userAPI.deactivateUser(selectedUserId);
       // Remove from local state
       const updatedUsers = users.filter(u => u.id !== selectedUserId);
@@ -105,6 +156,159 @@ function UserList() {
     setSelectedUserId(null);
   };
 
+  // Helper function to format phone number (show first 3 digits, hide rest with *)
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return '';
+    const phoneStr = phone.toString();
+    if (phoneStr.length <= 3) return phoneStr;
+    const firstThree = phoneStr.substring(0, 3);
+    const rest = '*'.repeat(phoneStr.length - 3);
+    return firstThree + rest;
+  };
+
+  // Helper function to format date from API to YYYY-MM-DD
+  const formatDateFromAPI = (dateValue) => {
+    if (!dateValue) return '';
+    
+    const value = dateValue.toString().trim();
+    
+    // Trường hợp format: YYYY-MM-DDTHH:mm:ss
+    const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+      return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
+    }
+    
+    // Trường hợp format lộn xộn như: 30T00:00:00/01/2026 - extract dd/mm/yyyy
+    const mixedMatch = value.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (mixedMatch) {
+      const [, day, month, year] = mixedMatch;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    
+    // Trường hợp format: dd/mm/yyyy
+    if (value.includes('/')) {
+      const parts = value.split('/');
+      if (parts.length === 3) {
+        const [day, month, year] = parts;
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      }
+    }
+    
+    // Nếu đã là YYYY-MM-DD, return as-is
+    if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return value;
+    }
+    
+    return '';
+  };
+
+  const handleEditUser = (user) => {
+    // Just open modal in view mode with basic user data
+    setEditingUser({ ...user });
+    setIsEditingMode(false);
+    setShowEditModal(true);
+  };
+
+  const handleStartEditing = async () => {
+    if (!editingUser) return;
+    try {
+      setIsLoadingProfile(true);
+      // Fetch full user profile from /userProfile/{id}
+      const profileData = await userAPI.getUserProfile(editingUser.id);
+      const userData = profileData.data || profileData;
+      
+      // Format date from API to YYYY-MM-DD format
+      const formattedDob = formatDateFromAPI(userData.dateOfBirth || userData.birthDate || userData.dob || '');
+      
+      // Map API response fields (handle different field names)
+      const mappedUser = {
+        ...editingUser,
+        ...userData,
+        fullName: userData.fullName || editingUser.fullName,
+        email: userData.email || editingUser.email,
+        phone: userData.phoneNumber || userData.phone || editingUser.phone || '', // API uses phoneNumber
+        dateOfBirth: formattedDob, // Use formatted date
+        gender: userData.gender || editingUser.gender || ''
+      };
+      
+      setEditingUser(mappedUser);
+      setOriginalEditingUser(mappedUser);
+      console.log('✅ User profile loaded:', mappedUser);
+    } catch (error) {
+      showToast('Lỗi khi tải thông tin người dùng', 'error');
+      console.error('Error fetching user profile:', error);
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
+
+  // Enter edit mode (after data is loaded)
+  const handleEnterEditMode = () => {
+    setIsEditingMode(true);
+  };
+
+  const handleEditInputChange = (field, value) => {
+    setEditingUser(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingUser) return;
+
+    try {
+      setIsSavingEdit(true);
+      
+      // Format date for API (YYYY-MM-DD -> YYYY-MM-DDTHH:mm:ss)
+      let formattedDateOfBirth = editingUser.dateOfBirth;
+      if (formattedDateOfBirth && formattedDateOfBirth.length === 10) {
+        formattedDateOfBirth = formattedDateOfBirth + 'T00:00:00';
+      }
+      
+      // Call API to update profile via /userProfile/{id}
+      await userAPI.updateUserProfile(editingUser.id, {
+        fullName: editingUser.fullName,
+        email: editingUser.email,
+        phoneNumber: editingUser.phone, // API expects phoneNumber
+        dateOfBirth: formattedDateOfBirth,
+        gender: editingUser.gender,
+        avatarUrl: editingUser.avatarUrl || editingUser.avatar // Preserve avatar URL
+      });
+      
+      // Update local state
+      const updatedUsers = users.map(u => 
+        u.id === editingUser.id ? editingUser : u
+      );
+      setUsers(updatedUsers);
+      
+      showToast('Cập nhật thông tin người dùng thành công', 'success');
+      setShowEditModal(false);
+      setEditingUser(null);
+      setOriginalEditingUser(null);
+    } catch (error) {
+      showToast('Lỗi khi cập nhật thông tin người dùng', 'error');
+      console.error('Error updating user:', error);
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (isEditingMode) {
+      // In edit mode: Just restore original values and exit edit mode, keep modal open
+      if (originalEditingUser) {
+        setEditingUser(originalEditingUser);
+      }
+      setIsEditingMode(false);
+    } else {
+      // In view mode: Close modal and clear data
+      setShowEditModal(false);
+      setEditingUser(null);
+      setOriginalEditingUser(null);
+    }
+  };
+
   return (
     <div className="user-list-container">
       <div className="user-list-header">
@@ -117,6 +321,41 @@ function UserList() {
             value={searchTerm}
             onChange={handleSearchChange}
           />
+          <div className="filter-menu-container" ref={filterMenuRef}>
+            <button
+              className="filter-menu-button"
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              title="Lọc theo trạng thái"
+            >
+              <i className="fa-solid fa-filter"></i>
+            </button>
+            {showFilterMenu && (
+              <div className="filter-menu-dropdown">
+                <label className="filter-menu-item">
+                  <input
+                    type="checkbox"
+                    checked={filterActive}
+                    onChange={handleFilterActiveChange}
+                    className="checkbox-input"
+                  />
+                  <span className="checkbox-text">
+                    <i className="fa-solid fa-check-circle"></i> Hoạt động
+                  </span>
+                </label>
+                <label className="filter-menu-item">
+                  <input
+                    type="checkbox"
+                    checked={filterInactive}
+                    onChange={handleFilterInactiveChange}
+                    className="checkbox-input"
+                  />
+                  <span className="checkbox-text">
+                    <i className="fa-solid fa-ban"></i> Vô hiệu hóa
+                  </span>
+                </label>
+              </div>
+            )}
+          </div>
           <button className="refresh-button" onClick={fetchUsers}>
             <i className="fa-solid fa-rotate-right"></i> Làm mới
           </button>
@@ -159,7 +398,11 @@ function UserList() {
                   <td className="col-created">{user.createdAt}</td>
                   <td className="col-actions">
                     <div className="action-buttons">
-                      <button className="btn-edit" title="Chỉnh sửa">
+                      <button 
+                        className="btn-edit" 
+                        title="Chỉnh sửa"
+                        onClick={() => handleEditUser(user)}
+                      >
                         <i className="fa-solid fa-pen"></i>
                       </button>
                       <button
@@ -236,6 +479,126 @@ function UserList() {
               >
                 {isDeactivating ? '...' : 'Xóa'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditModal && editingUser && (
+        <div className="modal-overlay">
+          <div className="modal-content edit-user-modal">
+            <h3 className="modal-header">Chỉnh sửa thông tin người dùng</h3>
+            
+            <div className="edit-user-form">
+              <div className="form-group">
+                <label>Tên đăng nhập</label>
+                <input
+                  type="text"
+                  disabled
+                  value={editingUser.username}
+                  className="form-input"
+                  style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Tên đầy đủ</label>
+                <input
+                  type="text"
+                  value={editingUser.fullName}
+                  onChange={(e) => handleEditInputChange('fullName', e.target.value)}
+                  className="form-input"
+                  readOnly={!isEditingMode}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={editingUser.email}
+                  onChange={(e) => handleEditInputChange('email', e.target.value)}
+                  className="form-input"
+                  readOnly={!isEditingMode}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Số điện thoại</label>
+                <input
+                  type="tel"
+                  value={isEditingMode ? (editingUser.phone || '') : formatPhoneNumber(editingUser.phone || '')}
+                  onChange={(e) => handleEditInputChange('phone', e.target.value)}
+                  className="form-input"
+                  placeholder="Nhập số điện thoại"
+                  readOnly={!isEditingMode}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Ngày sinh</label>
+                <input
+                  type="date"
+                  value={editingUser.dateOfBirth || ''}
+                  onChange={(e) => handleEditInputChange('dateOfBirth', e.target.value)}
+                  className="form-input"
+                  readOnly={!isEditingMode}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Giới tính</label>
+                <select
+                  value={editingUser.gender || ''}
+                  onChange={(e) => handleEditInputChange('gender', e.target.value)}
+                  className="form-input"
+                  style={{ height: '45px', padding: '0.75rem 1rem', cursor: isEditingMode ? 'pointer' : 'default' }}
+                  disabled={!isEditingMode}
+                >
+                  <option value="">Chọn giới tính</option>
+                  <option value="Nam">Nam</option>
+                  <option value="Nữ">Nữ</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="modal-buttons">
+              {isEditingMode ? (
+                <>
+                  <button
+                    className="cancel-button"
+                    onClick={handleCancelEdit}
+                    disabled={isSavingEdit || isLoadingProfile}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    className="confirm-button"
+                    onClick={handleSaveEdit}
+                    disabled={isSavingEdit || isLoadingProfile}
+                  >
+                    {isSavingEdit ? '...' : 'Lưu'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="cancel-button"
+                    onClick={handleCancelEdit}
+                  >
+                    Đóng
+                  </button>
+                  <button
+                    className="confirm-button"
+                    onClick={handleEnterEditMode}
+                    disabled={isLoadingProfile}
+                  >
+                    {isLoadingProfile ? '...' : 'Chỉnh sửa'}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

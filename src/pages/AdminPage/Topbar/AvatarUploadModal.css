@@ -127,7 +127,7 @@
 .browse-button {
   background: none;
   border: none;
-  color: #0084ff;
+  color: #1173be;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
@@ -137,7 +137,7 @@
 }
 
 .browse-button:hover {
-  color: #0066cc;
+  color: #0d5fa3;
 }
 
 .file-info {
