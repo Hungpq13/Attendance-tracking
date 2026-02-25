@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../../presentation/hooks/useAuth";
 import { useUser } from "../../../presentation/hooks/useUser";
 import { useToast } from "../../../hooks/useToast";
+import { translateErrorMessage } from "../../../utils/errorHandler";
 import AvatarUploadModal from "../Topbar/AvatarUploadModal";
 import "./PersonalInfo.css";
 
@@ -129,7 +130,7 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
         onProfileUpdate();
       }
     } catch (error) {
-      showToast('Lỗi cập nhật thông tin: ' + error.message, 'error');
+      showToast(translateErrorMessage(error.message), 'error');
     } finally {
       setSaving(false);
     }
