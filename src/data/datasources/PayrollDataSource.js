@@ -37,7 +37,20 @@ export class PayrollDataSource {
   async getSalaryComponents() {
     try {
       const response = await payrollAxios.get(API_ENDPOINTS.GET_SALARY_COMPONENTS);
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: [...] }
+      if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Check if responseData itself is an array
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+      
+      // Fallback
+      return responseData?.data || [];
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -52,7 +65,20 @@ export class PayrollDataSource {
     try {
       const endpoint = `${API_ENDPOINTS.GET_USER_SALARY_STRUCTURE}?id=${userId}`;
       const response = await payrollAxios.get(endpoint);
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: [...] }
+      if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Check if responseData itself is an array
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+      
+      // Fallback
+      return responseData?.data || [];
     } catch (error) {
       throw error.response?.data || error.message;
     }

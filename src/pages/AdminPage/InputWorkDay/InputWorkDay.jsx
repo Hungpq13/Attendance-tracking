@@ -4,6 +4,7 @@ import { userAPI, payrollAPI } from '../../../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { useToast } from '../../../hooks/useToast';
+import { translateErrorMessage } from '../../../config/constants';
 
 function InputWorkDay() {
   const currentDate = new Date();
@@ -84,16 +85,18 @@ function InputWorkDay() {
           .map(emp => ({
             id: emp.id,
             fullName: emp.fullName && emp.fullName.trim() !== "" ? emp.fullName : "unknown",
-            username: emp.username || emp.email || `ID: ${emp.id}`,
-          }));
+            username: emp.username || ""
+          }))
+          .sort((a, b) => (a.fullName || "").localeCompare(b.fullName || ""));
+        
         setUsers(filteredUsers);
       } catch (error) {
-        // Error fetching users
+        showToast('Lỗi tải danh sách nhân viên: ' + (error.message || 'Unknown error'), 'error');
       }
     };
 
     loadUsers();
-  }, []);
+  }, [showToast]);
 
   // Save selectedUserIds to localStorage
   useEffect(() => {
@@ -558,7 +561,7 @@ function InputWorkDay() {
       if (failureCount > 0 || salaryFailCount > 0) {
       }
     } catch (error) {
-      showToast("Lỗi khi lưu dữ liệu!", "error");
+      showToast(translateErrorMessage(error), "error");
     }
   };
 

@@ -38,7 +38,15 @@ export class UserDataSource {
   async getProfile(id) {
     try {
       const response = await userAxios.get(`/user/${id}`);
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: { ... } }
+      if (responseData && responseData.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Fallback: nếu trả về trực tiếp
+      return responseData;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -51,7 +59,15 @@ export class UserDataSource {
   async getProfileMe() {
     try {
       const response = await userAxios.get(API_ENDPOINTS.UPDATE_PROFILE_ME);
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: { ... } }
+      if (responseData && responseData.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Fallback: nếu trả về trực tiếp
+      return responseData;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -65,7 +81,15 @@ export class UserDataSource {
   async updateProfile(profileData) {
     try {
       const response = await userAxios.put(API_ENDPOINTS.UPDATE_PROFILE_ME, profileData);
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: { ... } }
+      if (responseData && responseData.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Fallback
+      return responseData;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -81,7 +105,15 @@ export class UserDataSource {
       const token = localStorage.getItem(STORAGE_TOKEN);
       
       const response = await userAxios.put(API_ENDPOINTS.UPDATE_PROFILE_ME, profileData);
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: { ... } }
+      if (responseData && responseData.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Fallback
+      return responseData;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -96,7 +128,15 @@ export class UserDataSource {
   async updateUser(userId, userData) {
     try {
       const response = await userAxios.put(`/user/${userId}`, userData);
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: { ... } }
+      if (responseData && responseData.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Fallback
+      return responseData;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -109,7 +149,20 @@ export class UserDataSource {
   async getAllUsers() {
     try {
       const response = await userAxios.get('/users'); 
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: [...] }
+      if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Check if responseData itself is an array
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+      
+      // Fallback: return array or empty
+      return responseData?.data || [];
     } catch (error) {
       throw error.response?.data || error.message;
     }

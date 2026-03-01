@@ -78,7 +78,20 @@ export const userAPI = {
   getAllUsers: async () => {
     try {
       const response = await api.get('/user');
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: [...] }
+      if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Check if responseData itself is an array
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+      
+      // Fallback: return array or empty
+      return responseData?.data || [];
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -88,7 +101,15 @@ export const userAPI = {
   getProfile: async (id) => { 
     try {
       const response = await api.get(`/user/${id}`);
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: { ... } }
+      if (responseData && responseData.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Fallback
+      return responseData;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -103,10 +124,20 @@ export const userAPI = {
     }
   },
 
-  // Deactivate user (set isActive = 0)
+  // Deactivate user (set isActive = 0) - calls delete API
   deactivateUser: async (userId) => {
     try {
       const response = await api.delete(`/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Restore user (activate again)
+  restoreUser: async (userId) => {
+    try {
+      const response = await api.put(`/user/${userId}/restore`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -164,7 +195,23 @@ export const userAPI = {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check if API trả về nested data structure: { success, data: { avatarUrl } }
+      if (responseData && responseData.data && typeof responseData.data === 'object') {
+        return {
+          url: responseData.data.avatarUrl || responseData.data.url,
+          message: responseData.message || 'Tải ảnh lên thành công',
+          data: responseData.data.avatarUrl || responseData.data.url
+        };
+      }
+      
+      // Fallback: responseData might be { avatarUrl, ... } or { url, ... }
+      return {
+        url: responseData?.avatarUrl || responseData?.url || responseData,
+        message: responseData?.message || 'Tải ảnh lên thành công',
+        data: responseData?.avatarUrl || responseData?.url || responseData
+      };
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -189,7 +236,13 @@ export const userAPI = {
     }
     
     const response = await api.post('/user/create-auto', userdata);
-    return response.data;
+    const responseData = response.data;
+    
+    // Extract inner data if wrapped in structure: { success, message, data: {...} }
+    if (responseData && responseData.data && typeof responseData.data === 'object') {
+      return responseData.data;
+    }
+    return responseData;
   } catch (error) {
     throw error.response?.data || error.message;
   }
@@ -203,7 +256,13 @@ createUserWithPassword: async (userdata) => {
     }
     
     const response = await api.post('/user', userdata);
-    return response.data;
+    const responseData = response.data;
+    
+    // Extract inner data if wrapped in structure: { success, message, data: {...} }
+    if (responseData && responseData.data && typeof responseData.data === 'object') {
+      return responseData.data;
+    }
+    return responseData;
   } catch (error) {
     throw error.response?.data || error.message;
   }
@@ -216,8 +275,6 @@ export const payrollAPI = {
   // Calculate payroll for multiple employees
   calculatePayroll: async (month, year) => {
     try {
-      // Create query string from employees array
-     
       const params = new URLSearchParams({
         month,
         year
@@ -226,7 +283,20 @@ export const payrollAPI = {
       const response = await api.get(
         `/payroll/calculate?${params.toString()}`
       );
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: [...] }
+      if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Check if responseData itself is an array
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+      
+      // Fallback
+      return responseData?.data || [];
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -243,7 +313,15 @@ export const payrollAPI = {
       const response = await api.get(
         `/payroll/calculate/${employeeId}?${params.toString()}`
       );
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: {...} }
+      if (responseData && responseData.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Check if responseData itself is object
+      return responseData;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -252,13 +330,23 @@ export const payrollAPI = {
   // Get timesheet data for an employee
   getTimesheetData: async (employeeId, month, year) => {
     try {
-      // Build endpoint with month and year as query parameters
       const endpoint = `/payroll/timesheet/user/${employeeId}?month=${month}&year=${year}`;
       
       const response = await api.get(endpoint);
+      const { data: responseData } = response;
       
-      return response.data;
+      // Check nếu API trả về nested data structure: { success, data: [...] }
+      if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
       
+      // Check if responseData itself is an array
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+      
+      // Fallback
+      return responseData?.data || [];
     } catch (error) {
       // Return empty array on error
       return [];
@@ -271,7 +359,20 @@ export const payrollAPI = {
       const response = await api.get(
         `/payroll/salary-structure/user/${employeeId}`
       );
-      return response.data;
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: [...] }
+      if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Check if responseData itself is an array
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+      
+      // Fallback
+      return responseData?.data || [];
     } catch (error) {
       throw error.response?.data || error.message;
     }

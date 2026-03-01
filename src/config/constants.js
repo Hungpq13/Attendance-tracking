@@ -26,6 +26,40 @@ export const API_ENDPOINTS = {
   GET_USER_SALARY_STRUCTURE: '/payroll/salary-structure/user',
 };
 
+// Error Message Translations
+export const ERROR_MESSAGE_TRANSLATIONS = {
+  'Network error': 'Lỗi kết nối mạng',
+  'network error': 'Lỗi kết nối mạng',
+  'Unsupported protocol': 'URL không hợp lệ',
+  'Failed to fetch': 'Lỗi kết nối tới máy chủ',
+  'Unauthorized - Token expired': 'Phiên làm việc đã hết hạn',
+  'token expired': 'Phiên làm việc đã hết hạn',
+  '401': 'Không có quyền truy cập',
+  '400': 'Dữ liệu không hợp lệ',
+  '403': 'Bạn không có quyền truy cập',
+  '404': 'Không tìm thấy dữ liệu',
+  '500': 'Lỗi máy chủ',
+  '503': 'Dịch vụ tạm không khả dụng',
+};
+
+// Function to translate error messages
+export const translateErrorMessage = (error) => {
+  if (!error) return 'Lỗi hệ thống. Vui lòng thử lại sau.';
+  
+  const errorString = error.toString ? error.toString() : String(error);
+  const errorMessage = error.message ? error.message : errorString;
+  
+  // Check for specific error patterns
+  for (const [key, translation] of Object.entries(ERROR_MESSAGE_TRANSLATIONS)) {
+    if (errorString.includes(key) || errorMessage.includes(key)) {
+      return `${translation}: ${errorMessage}`;
+    }
+  }
+  
+  // Return original message if no translation found
+  return errorMessage || 'Lỗi hệ thống. Vui lòng thử lại sau.';
+};
+
 // LocalStorage Keys
 export const STORAGE_KEYS = {
   TOKEN: 'token',
@@ -69,6 +103,6 @@ export const HTTP_STATUS = {
 export const ROUTES = {
   LOGIN:  '/' ,
   MAIN: '/main',  
-  CHANGE_INIT_PASSWORD: '/change-init-password',
+  CHANGE_PASSWORD: '/change-password',
   ERROR : '/error',
 };

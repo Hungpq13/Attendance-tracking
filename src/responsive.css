@@ -1525,3 +1525,135 @@ body {
     font-size: 13px;
   }
 }
+
+/* ============================================================
+   USER LIST RESPONSIVE STYLES (src/pages/AdminPage/ManageProfile/)
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  .status-badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.4rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-list-container {
+    padding: 1rem;
+  }
+
+  .user-list-title {
+    font-size: 1.5rem;
+  }
+
+  .user-list-controls {
+    flex-direction: column;
+  }
+
+  .user-search-input {
+    min-width: 100%;
+  }
+
+  .filter-menu-container {
+    width: 100%;
+  }
+
+  .filter-menu-button {
+    width: 100%;
+  }
+
+  .filter-menu-dropdown {
+    width: calc(100% - 2rem);
+    right: 0;
+  }
+
+  .refresh-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Hide less important columns on mobile */
+  .col-created {
+    display: none;
+  }
+
+  .col-email {
+    display: none;
+  }
+
+  .user-list-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .pagination-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pagination-button {
+    flex: 1;
+  }
+
+  .col-username {
+    width: 20%;
+  }
+
+  .col-fullname {
+    width: 45%;
+  }
+
+  .col-status {
+    width: 18%;
+  }
+
+  .col-actions {
+    width: 17%;
+  }
+
+  .user-list-table th,
+  .user-list-table td {
+    padding: 0.5rem;
+  }
+
+  .status-badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .user-list-footer {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-list-table {
+    font-size: 0.75rem;
+  }
+
+  .user-list-table th,
+  .user-list-table td {
+    padding: 0.4rem;
+  }
+
+  .col-status {
+    font-size: 0.7rem;
+  }
+
+  .status-badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    padding: 0.3rem;
+    min-width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+}

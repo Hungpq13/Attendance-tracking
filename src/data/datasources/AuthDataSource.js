@@ -61,7 +61,44 @@ export class AuthDataSource {
         username,
         password,
       });
-      return response.data;
+      // Backend trả về: { success, message, data: { accessToken, user, requirePasswordChange, tempToken, ... } }
+      const { data: responseData } = response;
+      
+      // Check xem có data object không
+      if (responseData && responseData.data && typeof responseData.data === 'object') {
+        const innerData = responseData.data;
+        
+        // Handle case where tempToken is returned (requires password change)
+        if (innerData.requirePasswordChange && innerData.tempToken) {
+          return {
+            accessToken: null,
+            requirePasswordChange: true,
+            tempToken: innerData.tempToken,
+            user: innerData.user || null,
+            isAuthenticated: false,
+            message: responseData.message || 'Cần thay đổi mật khẩu lần đầu tiên',
+          };
+        }
+        
+        // Normal login case with accessToken
+        if (innerData.accessToken) {
+          return {
+            accessToken: innerData.accessToken,
+            requirePasswordChange: innerData.requirePasswordChange || false,
+            tempToken: innerData.tempToken || null,
+            user: innerData.user || null,
+            isAuthenticated: innerData.isAuthenticated || false,
+            message: responseData.message || 'Đăng nhập thành công',
+          };
+        }
+      }
+      
+      // Fallback: check toàn bộ responseData có accessToken không
+      if (responseData && responseData.accessToken) {
+        return responseData;
+      }
+      
+      throw new Error('Đăng nhập thất bại: Không tìm thấy token trong response');
     } catch (error) {
       const errorMessage = error.response?.data?.message || 
                           error.response?.data?.error || 
@@ -130,7 +167,29 @@ export class AuthDataSource {
       };
       
       const response = await authAxios.post(API_ENDPOINTS.CHANGE_PASSWORD, payload);
-      return response.data;
+      // Backend trả về: { success, message, data: { accessToken, ... } }
+      const { data: responseData } = response;
+      
+      // Check xem có data.accessToken không
+      if (responseData && responseData.data && responseData.data.accessToken) {
+        return {
+          accessToken: responseData.data.accessToken,
+          user: responseData.data.user || null,
+          message: responseData.message || 'Thay đổi mật khẩu thành công',
+        };
+      }
+      
+      // Fallback
+      if (responseData && responseData.accessToken) {
+        return responseData;
+      }
+      
+      // Nếu không có token nhưng success thì coi là ok (có thể backend không trả token)
+      if (responseData && responseData.success) {
+        return responseData;
+      }
+      
+      return responseData;
     } catch (error) {
       const errorMessage = error.response?.data?.message || 
                           error.response?.data?.error || 
@@ -172,7 +231,24 @@ export class AuthDataSource {
       });
 
       const response = await tempAuthAxios.post(API_ENDPOINTS.CHANGE_INITIAL_PASSWORD, payload);
-      return response.data;
+      // Backend trả về: { success, message, data: { accessToken, ... } }
+      const { data: responseData } = response;
+      
+      // Check xem có data.accessToken không
+      if (responseData && responseData.data && responseData.data.accessToken) {
+        return {
+          accessToken: responseData.data.accessToken,
+          user: responseData.data.user || null,
+          message: responseData.message || 'Thay đổi mật khẩu thành công',
+        };
+      }
+      
+      // Fallback
+      if (responseData && responseData.accessToken) {
+        return responseData;
+      }
+      
+      return responseData;
     } catch (error) {
       const errorMessage = error.response?.data?.message || 
                           error.response?.data?.error || 

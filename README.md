@@ -34,12 +34,12 @@ npm run dev
 ```
 
 The application will be available at:
-- **Local:** `https://localhost:5173` (hoặc port khác nếu 5173 đang được sử dụng)
-- **Network:** `https://100.116.243.26:5173` (hoặc IP máy của bạn)
+- **Local:** `http://localhost:5173` (hoặc port khác nếu 5173 đang được sử dụng)
+- **Network:** `http://100.116.243.26:5173` (hoặc IP máy của bạn)
 
 **Note:** 
 - On first run, your browser may show a security warning about the self-signed certificate. This is normal for local development. Click "Advanced" and "Proceed to localhost" to continue.
-- Để truy cập từ máy khác trong mạng, sử dụng địa chỉ Network (ví dụ: `https://100.116.243.26:5173`)
+- Để truy cập từ máy khác trong mạng, sử dụng địa chỉ Network (ví dụ: `http://100.116.243.26:5173`)
 
 ### Building for Production
 
@@ -137,8 +137,8 @@ For detailed API documentation, see [API_INTEGRATION.md](API_INTEGRATION.md)
 The frontend expects a backend API running at `https://100.70.202.103:7085/api` with the following:
 
 1. CORS enabled for:
-   - `https://localhost:5173` (và các port khác như 5174, 5175)
-   - `https://100.116.243.26:5173` (khi chạy trên network)
+   - `http://localhost:5173` (và các port khác như 5174, 5175)
+   - `http://100.116.243.26:5173` (khi chạy trên network)
 2. SSL certificate properly configured
 3. Endpoints as documented in [API_INTEGRATION.md](API_INTEGRATION.md)
 
@@ -151,11 +151,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
-                "https://localhost:5173", 
-                "https://localhost:5174", 
-                "https://localhost:5175",
-                "https://100.116.243.26:5173",  // Frontend trên network
-                "https://100.116.243.26:5174"
+                "http://localhost:5173", 
+                "http://localhost:5174", 
+                "http://localhost:5175",
+                "http://100.116.243.26:5173",  // Frontend trên network
+                "http://100.116.243.26:5174"
               )
               .AllowAnyHeader()
               .AllowAnyMethod()

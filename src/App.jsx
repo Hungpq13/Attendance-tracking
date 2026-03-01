@@ -87,7 +87,7 @@ function AppContent() {
     <ErrorBoundary>
       <Routes>
         <Route path={ROUTES.LOGIN} element={<Login />} />
-        <Route path={ROUTES.CHANGE_INIT_PASSWORD} element={<ChangePassword />} />
+        <Route path={ROUTES.CHANGE_PASSWORD} element={<ChangePassword />} />
         <Route path={ROUTES.MAIN} element={<Main />} />
         <Route path={ROUTES.ERROR} element={<ErrorPage />} />
       </Routes>

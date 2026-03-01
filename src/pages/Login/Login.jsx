@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../presentation/hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
+import { translateErrorMessage } from '../../utils/errorHandler';
 import './Login.css';
 
 /**
@@ -30,7 +31,7 @@ function Login() {
     const usernameValue = formData.get('username');
     const passwordValue = formData.get('password');
 
-    // Kiểm tra nhập liệu
+    // Kiểm tra nhập liệu`
     if (!usernameValue || !passwordValue) {
       showToast('Vui lòng nhập tên đăng nhập và mật khẩu', 'error');
       return;
@@ -42,10 +43,13 @@ function Login() {
       const result = await login(usernameValue, passwordValue);
       
       // Kiểm tra xem có cần đổi mật khẩu không
-      if (result.requirePasswordChange) {
+      if (result?.requirePasswordChange) {
         showToast('Vui lòng đổi mật khẩu để tiếp tục.', 'warning');
-        navigate('/change-password', { replace: true });
-      } else if (result.success) {
+        // Delay slightly to show toast
+        setTimeout(() => {
+          navigate('/change-password', { replace: true });
+        }, 500);
+      } else if (result?.success) {
         showToast('Đăng nhập thành công!', 'success');
         setTimeout(() => {
           navigate('/main', { replace: true });
@@ -53,7 +57,7 @@ function Login() {
       }
     } catch (error) {
       setIsSubmitting(false);
-      showToast(error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tên đăng nhập và mật khẩu.', 'error');
+      showToast(translateErrorMessage(error.message || 'Đăng nhập thất bại'), 'error');
     }
   };
 
@@ -96,7 +100,7 @@ function Login() {
           <label htmlFor="password" className={isSubmitting ? 'hidden-animation' : ''}>Mật khẩu</label>
         </div>
         <div className="pass">Quên mật khẩu?</div>
-        {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+        {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{translateErrorMessage(error)}</div>}
         <input 
           type="submit" 
           value={loading ? "Đang đăng nhập..." : "Đăng nhập"} 

@@ -83,11 +83,12 @@ function AvatarUploadModal({ isOpen, onClose, onUpload, currentAvatar }) {
 
       // Step 1: Upload file and get URL
       const uploadResponse = await userAPI.uploadAvatar(selectedFile);
-      const avatarUrl = uploadResponse.url || uploadResponse.data;
-      const message = uploadResponse.message || 'Tải ảnh lên thành công';
+      // Extract avatar URL from response (handle both structures)
+      const avatarUrl = uploadResponse?.url || uploadResponse?.data || uploadResponse?.avatarUrl;
+      const message = uploadResponse?.message || 'Tải ảnh lên thành công';
 
       if (!avatarUrl) {
-        throw new Error('Không nhận được URL từ server');
+        throw new Error('Không nhận được URL từ server: ' + JSON.stringify(uploadResponse));
       }
 
       // Step 2: Show temporary avatar and message

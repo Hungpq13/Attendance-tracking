@@ -29,6 +29,11 @@ export const useAuth = () => {
     try {
       // Gọi use case đăng nhập
       const response = await loginUseCase.execute(username, password);
+      
+      // Debug: Log response structure
+      if (!response) {
+        throw new Error('Không nhận được response từ server');
+      }
 
       // Kiểm tra nếu require password change
       if (response.requirePasswordChange && response.tempToken) {
@@ -41,8 +46,9 @@ export const useAuth = () => {
         };
       }
 
-      if (!response || !response.accessToken) {
-        throw new Error('Không nhận được token từ server');
+      // Kiểm tra accessToken
+      if (!response.accessToken) {
+        throw new Error('Không nhận được token từ server. Response: ' + JSON.stringify(response));
       }
 
       // Lưu token vào localStorage

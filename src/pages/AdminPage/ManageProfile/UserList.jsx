@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../../hooks/useToast';
 import { userAPI } from '../../../services/api';
+import { translateErrorMessage } from '../../../config/constants';
 import './ManageProfile.css';
 
 function UserList() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -66,7 +69,7 @@ function UserList() {
      
       setUsers(allUsers);
     } catch (error) {
-      showToast('Lỗi khi tải danh sách người dùng', 'error');
+      showToast(translateErrorMessage(error), 'error');
     } finally {
       setLoading(false);
     }
@@ -112,46 +115,41 @@ function UserList() {
     setCurrentPage(1);
   };
 
-  const handleDeleteUser = (userId) => {
-    setSelectedUserId(userId);
-    setShowConfirmModal(true);
-  };
-
-  const confirmDeactivate = async () => {
-    if (!selectedUserId) return;
-
+  const handleLockToggle = async (userId) => {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    
     try {
       setIsDeactivating(true);
-    
-      await userAPI.deactivateUser(selectedUserId);
-      // Remove from local state
-      const updatedUsers = users.filter(u => u.id !== selectedUserId);
-      setUsers(updatedUsers);
       
-      // Adjust current page if needed
-      const newFilteredCount = updatedUsers.filter(user =>
-        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-      ).length;
-      const newTotalPages = Math.ceil(newFilteredCount / itemsPerPage);
-      if (currentPage > newTotalPages && newTotalPages > 0) {
-        setCurrentPage(newTotalPages);
+      if (!user.isActive) {
+        // User is inactive (green lock) - call restore API
+        await userAPI.restoreUser(userId);
+        
+        // Update user's isActive status
+        const updatedUsers = users.map(u => 
+          u.id === userId ? { ...u, isActive: true } : u
+        );
+        setUsers(updatedUsers);
+        
+        showToast('Khôi phục người dùng thành công', 'success');
+      } else {
+        // User is active (red lock) - call delete API
+        await userAPI.deactivateUser(userId);
+        
+        // Update user's isActive status
+        const updatedUsers = users.map(u => 
+          u.id === userId ? { ...u, isActive: false } : u
+        );
+        setUsers(updatedUsers);
+        
+        showToast('Xóa người dùng thành công', 'success');
       }
-      
-      showToast('Xóa người dùng thành công', 'success');
-      setShowConfirmModal(false);
-      setSelectedUserId(null);
     } catch (error) {
-      showToast('Lỗi khi xóa người dùng', 'error');
+      showToast(translateErrorMessage(error), 'error');
     } finally {
       setIsDeactivating(false);
     }
-  };
-
-  const cancelDeactivate = () => {
-    setShowConfirmModal(false);
-    setSelectedUserId(null);
   };
 
   // Helper function to format phone number (show first 3 digits, hide rest with *)
@@ -200,6 +198,28 @@ function UserList() {
     return '';
   };
 
+  const formatCreatedDate = (dateTimeString) => {
+    if (!dateTimeString) return '';
+    
+    try {
+      const date = new Date(dateTimeString);
+      
+      // Get time components
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      // Get date components
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+    } catch (error) {
+      return dateTimeString;
+    }
+  };
+
   const handleEditUser = (user) => {
     // Just open modal in view mode with basic user data
     setEditingUser({ ...user });
@@ -232,7 +252,7 @@ function UserList() {
       setEditingUser(mappedUser);
       setOriginalEditingUser(mappedUser);
     } catch (error) {
-      showToast('Lỗi khi tải thông tin người dùng', 'error');
+      showToast(translateErrorMessage(error), 'error');
     } finally {
       setIsLoadingProfile(false);
     }
@@ -283,7 +303,7 @@ function UserList() {
       setEditingUser(null);
       setOriginalEditingUser(null);
     } catch (error) {
-      showToast('Lỗi khi cập nhật thông tin người dùng', 'error');
+      showToast(translateErrorMessage(error), 'error');
     } finally {
       setIsSavingEdit(false);
     }
@@ -307,7 +327,16 @@ function UserList() {
   return (
     <div className="user-list-container">
       <div className="user-list-header">
-        <h2 className="user-list-title">Danh sách người dùng</h2>
+        <div className="user-list-header-title">
+          <h2 className="user-list-title">Danh sách người dùng</h2>
+          <button 
+            className="btn-add-user" 
+            title="Thêm người dùng mới"
+            onClick={() => navigate('/main/create-account')}
+          >
+            <i className="fa-solid fa-plus"></i>
+          </button>
+        </div>
         <div className="user-list-controls">
           <input
             type="text"
@@ -390,7 +419,7 @@ function UserList() {
                       {user.isActive ? 'Hoạt động' : 'Vô hiệu hóa'}
                     </span>
                   </td>
-                  <td className="col-created">{user.createdAt}</td>
+                  <td className="col-created">{formatCreatedDate(user.createdAt)}</td>
                   <td className="col-actions">
                     <div className="action-buttons">
                       <button 
@@ -401,11 +430,14 @@ function UserList() {
                         <i className="fa-solid fa-pen"></i>
                       </button>
                       <button
-                        className="btn-delete"
-                        title="Vô hiệu hóa"
-                        onClick={() => handleDeleteUser(user.id)}
+                        className={`btn-lock ${
+                          !user.isActive ? 'btn-lock-active' : 'btn-lock-inactive'
+                        }`}
+                        title={!user.isActive ? 'Khôi phục' : 'Xóa'}
+                        onClick={() => handleLockToggle(user.id)}
+                        disabled={isDeactivating}
                       >
-                        <i className="fa-solid fa-trash"></i>
+                        <i className={`fa-solid ${!user.isActive ? 'fa-lock-open' : 'fa-lock'}`}></i>
                       </button>
                     </div>
                   </td>
@@ -422,7 +454,15 @@ function UserList() {
 
           <div className="user-list-footer">
             <div className="pagination-info">
-              <p>Tổng cộng: <strong>{filteredUsers.length}</strong> người dùng</p>
+              <p>
+                {filteredUsers.length > 0 ? (
+                  <>
+                    <strong>{startIndex + 1}-{Math.min(endIndex, filteredUsers.length)}</strong> trên tổng số <strong>{filteredUsers.length}</strong> người dùng
+                  </>
+                ) : (
+                  <>Tổng cộng: <strong>0</strong> người dùng</>
+                )}
+              </p>
             </div>
             {filteredUsers.length > itemsPerPage && (
               <div className="pagination-controls">
@@ -450,35 +490,6 @@ function UserList() {
           </div>
         </div>
       )}
-
-      {/* Confirm Modal */}
-      {showConfirmModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-           
-            <p style={{ marginBottom: '1.5rem', color: '#666' }}>
-              Bạn có chắc chắn muốn xóa người dùng này? 
-            </p>
-            <div className="modal-buttons">
-              <button
-                className="cancel-button"
-                onClick={cancelDeactivate}
-                disabled={isDeactivating}
-              >
-                Hủy
-              </button>
-              <button
-                className="confirm-button"
-                onClick={confirmDeactivate}
-                disabled={isDeactivating}
-              >
-                {isDeactivating ? '...' : 'Xóa'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Edit User Modal */}
       {showEditModal && editingUser && (
         <div className="modal-overlay">

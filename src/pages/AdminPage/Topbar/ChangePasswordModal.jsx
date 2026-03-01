@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../presentation/hooks/useAuth';
 import { useToast } from '../../../hooks/useToast';
 import { getTempToken } from '../../../config/TokenHelper';
+import { translateErrorMessage } from '../../../config/constants';
 
 const PasswordInputWithToggle = ({ value, onChange, showPassword, onToggle, placeholder }) => (
   <div style={{ position: "relative", width: "100%" }}>
@@ -128,7 +129,7 @@ function ChangePasswordModal({ isOpen, onClose }) {
         }, 1500);
       }
     } catch (error) {
-      showToast(error.message || "Đổi mật khẩu thất bại. Vui lòng thử lại.", "error");
+      showToast(translateErrorMessage(error.message), "error");
     }
   };
 

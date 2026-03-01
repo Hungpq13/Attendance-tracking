@@ -178,8 +178,17 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
         setDateOfBirth(dobValue);
         setGender(convertGenderFromAPI(profileMeData.gender || ""));
         setPhoneNumber(profileMeData.phoneNumber || "");
+        
+        // Lưu original values cho việc cancel edit
+        setOriginalValues({
+          fullName: profileMeData.fullName || "",
+          email: profileMeData.email || "",
+          dateOfBirth: dobValue,
+          gender: convertGenderFromAPI(profileMeData.gender || ""),
+          phoneNumber: profileMeData.phoneNumber || "",
+        });
       } catch (error) {
-
+        showToast('Lỗi tải thông tin cá nhân: ' + error.message, 'error');
       }
     };
 
