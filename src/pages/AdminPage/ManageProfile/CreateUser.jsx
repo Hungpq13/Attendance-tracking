@@ -34,13 +34,8 @@ function CreateUser() {
   }, [useAutoPassword]);
 
   const handleCreateUser = async () => {
-    if (!fullName || !userName) {
-      showToast("Vui lòng nhập đầy đủ thông tin.", "warning");
-      return;
-    }
-
     // If not using auto password, password is required
-    if (!useAutoPassword && !password) {
+    if (!useAutoPassword && !password.trim()) {
       showToast("Vui lòng nhập mật khẩu.", "warning");
       return;
     }
@@ -94,6 +89,17 @@ function CreateUser() {
   };
 
   const openModalHandler = () => {
+    // Validate username and fullName (excluding email)
+    if (!userName.trim()) {
+      showToast("Vui lòng nhập tên đăng nhập.", "warning");
+      return;
+    }
+    
+    if (!fullName.trim()) {
+      showToast("Vui lòng nhập họ và tên.", "warning");
+      return;
+    }
+
     setOpenModal(true);
   };
 
@@ -226,7 +232,7 @@ function CreateUser() {
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
-                value={password}
+                value={password}  
                 onChange={passwordChange}
                 className="form-input"
                 placeholder="Nhập mật khẩu"
@@ -250,9 +256,7 @@ function CreateUser() {
 
 
       <div className="button-container">
-        <button className="cancel-button" onClick={closeModalHandler}>
-          Hủy bỏ
-        </button>
+      
         <button className="create-button" onClick={openModalHandler}>
           <i className="fa-solid fa-check"></i>
           Lưu thành viên
