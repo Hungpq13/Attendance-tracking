@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getUserRole } from '../../../config/PermissionHelper';
 import { USER_ROLES } from '../../../config/constants';
 import { StatisticsIcon, UsersIcon, DocumentIcon, ClipboardListIcon } from '../../../utils/Icons';
@@ -44,8 +44,20 @@ function Sidebar({ currentPage, onPageChange, isOpen, onClose }) {
 
   const handleSubMenuClick = (id) => {
     onPageChange(id);
-    setExpandedDropdown(null); // Close dropdown after selection
   };
+
+  // Check if a menu item's submenu contains the current page
+  const isSubmenuItemActive = (item) => {
+    return item.hasDropdown && item.submenu?.some(sub => sub.id === currentPage);
+  };
+
+  // Auto-close dropdown when navigating away from submenu pages
+  useEffect(() => {
+    const manageItem = menuItems.find(item => item.id === 'manage');
+    if (expandedDropdown && !isSubmenuItemActive(manageItem)) {
+      setExpandedDropdown(null);
+    }
+  }, [currentPage]);
 
   return (
     <>
@@ -79,7 +91,7 @@ function Sidebar({ currentPage, onPageChange, isOpen, onClose }) {
                 <button
                   onClick={() => handleItemClick(item.id)}
                   className={`nav-item ${currentPage === item.id ? 'active' : ''} ${
-                    item.hasDropdown && expandedDropdown === item.id ? 'expanded' : ''
+                    expandedDropdown === item.id || isSubmenuItemActive(item) ? 'expanded' : ''
                   }`}
                 >
                   <div className="nav-item-content">
@@ -87,14 +99,14 @@ function Sidebar({ currentPage, onPageChange, isOpen, onClose }) {
                     <span className="nav-label">{item.label}</span>
                   </div>
                   {item.hasDropdown && (
-                    <span className={`dropdown-arrow ${expandedDropdown === item.id ? 'open' : ''}`}>
+                    <span className={`dropdown-arrow ${expandedDropdown === item.id || isSubmenuItemActive(item) ? 'open' : ''}`}>
                       <i className="fa-solid fa-chevron-down"></i>
                     </span>
                   )}
                 </button>
 
                 {/* Dropdown submenu */}
-                {item.hasDropdown && expandedDropdown === item.id && item.submenu && (
+                {item.hasDropdown && (expandedDropdown === item.id || isSubmenuItemActive(item)) && item.submenu && (
                   <div className="dropdown-menu">
                     {item.submenu.map((subitem) => (
                       <button

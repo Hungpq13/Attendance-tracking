@@ -72,6 +72,7 @@
 
 .logo-icon {
   font-size: 1.8rem;
+  display: none;
 }
 
 .logo-text {
@@ -193,7 +194,7 @@
 /* Dropdown menu */
 .dropdown-menu {
   background: rgba(0, 0, 0, 0.3);
-  border-left: 4px solid #667eea;
+  
   animation: slideDown 0.3s ease-out;
   overflow: hidden;
 }
@@ -235,7 +236,7 @@
 .submenu-item.active {
   background: rgba(102, 126, 234, 0.15);
   color: white;
- 
+  border-left-color: #667eea;
   font-weight: 500;
 }
 
@@ -269,6 +270,14 @@
     left: 0;
     top: 0;
   }
+
+  .logo-icon {
+    display: block;
+  }
+
+  .logo-text {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -282,6 +291,10 @@
 
   .logo-text {
     display: none;
+  }
+
+  .logo-icon {
+    display: block;
   }
 
   .sidebar-logo {

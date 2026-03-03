@@ -26,16 +26,13 @@ function WorkDayTable() {
   const [loadingTimesheet, setLoadingTimesheet] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const {
-    formatCurrency,
-  } = usePayroll();
+  const { formatCurrency } = usePayroll();
 
   const { getCurrentUser } = useAuth();
   const { loadProfile } = useUser();
 
   // Helper function to check if user is employee (non-admin)
   const isEmployeeRole = () => {
-   
     const role = getUserRole();
     return role === USER_ROLES.USER;
   };
@@ -105,21 +102,24 @@ function WorkDayTable() {
     const loadAllEmployees = async () => {
       try {
         let employeeList = [];
-        
+
         if (isEmployeeRole()) {
           // Employee: only fetch their own data
           if (currentUser) {
             employeeList = [
               {
                 id: currentUser.id,
-                fullName: userProfile?.fullName || currentUser?.fullName || "Chưa cập nhật",
+                fullName:
+                  userProfile?.fullName ||
+                  currentUser?.fullName ||
+                  "Chưa cập nhật",
                 days: Array.from({ length: daysInMonth }, () => ""),
                 total: 26,
                 overtimeHours: 0,
                 unpaidLeave: 1,
                 holidayLeave: 1,
                 paidLeave: 0,
-              }
+              },
             ];
           }
         } else {
@@ -146,8 +146,6 @@ function WorkDayTable() {
     loadAllEmployees();
   }, [userProfile]);
 
-
-
   // Helper function to fetch salaries
   const fetchSalariesForMonth = async (month, year, empList = null) => {
     const employeeList = empList || employees;
@@ -158,15 +156,15 @@ function WorkDayTable() {
 
       try {
         setLoadingSalaries(true);
-        
+
         const response = await payrollAPI.calculateSinglePayroll(
           currentUser.id,
           month,
-          year
+          year,
         );
-        
+
         const salariesMap = {};
-        
+
         // Handle both single object and array response
         const salaryData = Array.isArray(response) ? response[0] : response;
         if (salaryData) {
@@ -180,7 +178,7 @@ function WorkDayTable() {
             totalOvertimeHours: salaryData.totalOvertimeHours || 0,
           };
         }
-        
+
         setEmployeeSalaries(salariesMap);
       } catch (error) {
         // Error fetching salary
@@ -191,11 +189,11 @@ function WorkDayTable() {
       // Admin: fetch all employees' salaries
       try {
         setLoadingSalaries(true);
-        
+
         const response = await payrollAPI.calculatePayroll(month, year);
-        
+
         const salariesMap = {};
-       
+
         if (Array.isArray(response)) {
           response.forEach((salary) => {
             salariesMap[salary.id] = {
@@ -253,7 +251,7 @@ function WorkDayTable() {
           total: 26,
           overtimeHours: 0,
           unpaidLeave: 1,
-          holidayLeave: 1,  
+          holidayLeave: 1,
           paidLeave: 0,
         }));
         setEmployees(formattedEmployees);
@@ -275,7 +273,11 @@ function WorkDayTable() {
     setShowDetailModal(true);
     setLoadingTimesheet(true);
     try {
-      const data = await payrollAPI.getTimesheetData(row.id, selectedMonth, selectedYear);
+      const data = await payrollAPI.getTimesheetData(
+        row.id,
+        selectedMonth,
+        selectedYear,
+      );
       setTimesheetData(Array.isArray(data) ? data : []);
     } catch (error) {
       setTimesheetData([]);
@@ -285,70 +287,74 @@ function WorkDayTable() {
   };
 
   // Memoized table header - doesn't change, so it won't re-render
-  const tableHeader = useMemo(() => (
-    <div className="div-header">
-      <div className="header-cell col-action">Hành động</div>
-      <div className="header-cell col-index">TT</div>
-      <div className="header-cell col-name">Tên</div>
-      <div className="header-cell col-total">Tổng công</div>
-      <div className="header-cell col-overtime">Tổng tăng ca</div>
-      <div className="header-cell col-salary">Lương</div>
-      <div className="header-cell col-allowance">Phụ cấp</div>
-      <div className="header-cell col-total-salary">Tổng</div>
-      <div className="header-cell col-advance">Trừ Tạm Ứng</div>
-      <div className="header-cell col-remaining">Còn lại</div>
-    </div>
-  ), []);
+  const tableHeader = useMemo(
+    () => (
+      <div className="div-header">
+        <div className="header-cell col-action">Hành động</div>
+        <div className="header-cell col-index">TT</div>
+        <div className="header-cell col-name">Tên</div>
+        <div className="header-cell col-total">Tổng công</div>
+        <div className="header-cell col-overtime">Tổng tăng ca</div>
+        <div className="header-cell col-salary">Lương</div>
+        <div className="header-cell col-allowance">Phụ cấp</div>
+        <div className="header-cell col-total-salary">Tổng</div>
+        <div className="header-cell col-advance">Trừ Tạm Ứng</div>
+        <div className="header-cell col-remaining">Còn lại</div>
+      </div>
+    ),
+    [],
+  );
 
   const rows = employees.filter(
     (emp) =>
-      employeeSalaries[emp.id] &&
-      employeeSalaries[emp.id].totalAmount > 0
+      employeeSalaries[emp.id] && employeeSalaries[emp.id].totalAmount > 0,
   );
 
   return (
     <div className="page-container">
       <h2>Bảng chấm công và lương tháng {monthLabel}</h2>
-      <div className="month-selector">
-        <div className="selector-group">
-          <label htmlFor="yearPicker">Năm: </label>
-          <select
-            id="yearPicker"
-            value={selectedYear}
-            onChange={handleYearChange}
-            className="year-picker"
-          >
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="div flex-contain-workday">
+        <div className="month-selector">
+          <div className="selector-group">
+            <label htmlFor="yearPicker">Năm: </label>
+            <select
+              id="yearPicker"
+              value={selectedYear}
+              onChange={handleYearChange}
+              className="year-picker"
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="selector-group">
-          <label htmlFor="monthPicker">Tháng: </label>
-          <select
-            id="monthPicker"
-            value={selectedMonth}
-            onChange={handleMonthChange}
-            className="month-picker-dropdown"
-          >
-            {months.map((month) => (
-              <option
-                key={month.value}
-                value={month.value}
-                disabled={isMonthDisabled(month.value)}
-              >
-                {month.label}
-              </option>
-            ))}
-          </select>
+          <div className="selector-group">
+            <label htmlFor="monthPicker">Tháng: </label>
+            <select
+              id="monthPicker"
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              className="month-picker-dropdown"
+            >
+              {months.map((month) => (
+                <option
+                  key={month.value}
+                  value={month.value}
+                  disabled={isMonthDisabled(month.value)}
+                >
+                  {month.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-
         <button
           onClick={handleSearch}
           style={{
+            height: "40px",
             padding: "8px 20px",
             backgroundColor: "#3b82f6",
             color: "white",
@@ -357,8 +363,9 @@ function WorkDayTable() {
             cursor: "pointer",
             fontSize: "14px",
             fontWeight: "500",
-            marginLeft: "10px",
+            marginRight: "30px",
             transition: "background-color 0.3s",
+
           }}
           onMouseEnter={(e) => (e.target.style.backgroundColor = "#2563eb")}
           onMouseLeave={(e) => (e.target.style.backgroundColor = "#3b82f6")}
@@ -366,7 +373,6 @@ function WorkDayTable() {
           Tra cứu
         </button>
       </div>
-
       {loadingSalaries && (
         <div
           style={{
@@ -442,9 +448,18 @@ function WorkDayTable() {
             >
               {!hasSearched ? (
                 <span>
-                  Vui lòng nhấp nút <a><b>Tra cứu</b></a> để xem dữ liệu
+                  Vui lòng nhấp nút{" "}
+                  <a>
+                    <b>Tra cứu</b>
+                  </a>{" "}
+                  để xem dữ liệu
                 </span>
-              ) : "Chưa có dữ liệu lương trong tháng " + selectedMonth + " năm " + selectedYear}
+              ) : (
+                "Chưa có dữ liệu lương trong tháng " +
+                selectedMonth +
+                " năm " +
+                selectedYear
+              )}
             </div>
           </div>
         </div>
@@ -467,72 +482,94 @@ function WorkDayTable() {
                 >
                   {!hasSearched ? (
                     <span>
-                      Vui lòng nhấp nút <a><b>Tra cứu</b></a> để xem dữ liệu
+                      Vui lòng nhấp nút{" "}
+                      <a>
+                        <b>Tra cứu</b>
+                      </a>{" "}
+                      để xem dữ liệu
                     </span>
-                  ) : "Chưa có dữ liệu"}
+                  ) : (
+                    "Chưa có dữ liệu"
+                  )}
                 </div>
               ) : (
                 rows.map((row, index) => (
-                <div key={row.id} className="div-row">
-                  <div className="data-cell col-action">
-                    <button
-                      onClick={() => handleViewDetails(row)}
-                      className="detail-btn"
-                      disabled={isEmployeeRole() && row.id !== currentUser?.id}
-                      style={isEmployeeRole() && row.id !== currentUser?.id ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-                      title={isEmployeeRole() && row.id !== currentUser?.id ? "Chỉ có thể xem dữ liệu của chính mình" : "Xem chi tiết"}
-                    >
-                      Chi tiết
-                    </button>
+                  <div key={row.id} className="div-row">
+                    <div className="data-cell col-action">
+                      <button
+                        onClick={() => handleViewDetails(row)}
+                        className="detail-btn"
+                        disabled={
+                          isEmployeeRole() && row.id !== currentUser?.id
+                        }
+                        style={
+                          isEmployeeRole() && row.id !== currentUser?.id
+                            ? { opacity: 0.5, cursor: "not-allowed" }
+                            : {}
+                        }
+                        title={
+                          isEmployeeRole() && row.id !== currentUser?.id
+                            ? "Chỉ có thể xem dữ liệu của chính mình"
+                            : "Xem chi tiết"
+                        }
+                      >
+                        Chi tiết
+                      </button>
+                    </div>
+                    <div className="data-cell col-index">{index + 1}</div>
+                    <div className="data-cell col-name cell-left">
+                      {row.fullName}
+                    </div>
+                    <div className="data-cell col-total">
+                      {employeeSalaries[row.id] &&
+                      employeeSalaries[row.id].totalWorkDays !== undefined
+                        ? employeeSalaries[row.id].totalWorkDays
+                        : "—"}
+                    </div>
+                    <div className="data-cell col-overtime">
+                      {employeeSalaries[row.id] &&
+                      employeeSalaries[row.id].totalOvertimeHours !== undefined
+                        ? employeeSalaries[row.id].totalOvertimeHours
+                        : "—"}
+                    </div>
+                    <div className="data-cell col-salary">
+                      {employeeSalaries[row.id] &&
+                      employeeSalaries[row.id].baseSalary !== undefined
+                        ? formatCurrency(employeeSalaries[row.id].baseSalary)
+                        : "—"}
+                    </div>
+                    <div className="data-cell col-allowance">
+                      {employeeSalaries[row.id] &&
+                      employeeSalaries[row.id].totalAllowances !== undefined
+                        ? formatCurrency(
+                            employeeSalaries[row.id].totalAllowances,
+                          )
+                        : "—"}
+                    </div>
+                    <div className="data-cell col-total-salary">
+                      {employeeSalaries[row.id] &&
+                      employeeSalaries[row.id].totalAmount !== undefined
+                        ? formatCurrency(employeeSalaries[row.id].totalAmount)
+                        : "—"}
+                    </div>
+                    <div className="data-cell col-advance">
+                      {employeeSalaries[row.id] &&
+                      employeeSalaries[row.id].advancePayment !== undefined
+                        ? formatCurrency(
+                            employeeSalaries[row.id].advancePayment,
+                          )
+                        : "—"}
+                    </div>
+                    <div className="data-cell col-remaining">
+                      {employeeSalaries[row.id] &&
+                      employeeSalaries[row.id].remainingAmount !== undefined
+                        ? formatCurrency(
+                            employeeSalaries[row.id].remainingAmount,
+                          )
+                        : "—"}
+                    </div>
                   </div>
-                  <div className="data-cell col-index">{index + 1}</div>
-                  <div className="data-cell col-name cell-left">
-                    {row.fullName}
-                  </div>
-                  <div className="data-cell col-total">
-                    {employeeSalaries[row.id] &&
-                    employeeSalaries[row.id].totalWorkDays !== undefined
-                      ? employeeSalaries[row.id].totalWorkDays
-                      : "—"}
-                  </div>
-                  <div className="data-cell col-overtime">
-                    {employeeSalaries[row.id] &&
-                    employeeSalaries[row.id].totalOvertimeHours !== undefined
-                      ? employeeSalaries[row.id].totalOvertimeHours
-                      : "—"}
-                  </div>
-                  <div className="data-cell col-salary">
-                    {employeeSalaries[row.id] &&
-                    employeeSalaries[row.id].baseSalary !== undefined
-                      ? formatCurrency(employeeSalaries[row.id].baseSalary)
-                      : "—"}
-                  </div>
-                  <div className="data-cell col-allowance">
-                    {employeeSalaries[row.id] &&
-                    employeeSalaries[row.id].totalAllowances !== undefined
-                      ? formatCurrency(employeeSalaries[row.id].totalAllowances)
-                      : "—"}
-                  </div>
-                  <div className="data-cell col-total-salary">
-                    {employeeSalaries[row.id] &&
-                    employeeSalaries[row.id].totalAmount !== undefined
-                      ? formatCurrency(employeeSalaries[row.id].totalAmount)
-                      : "—"}
-                  </div>
-                  <div className="data-cell col-advance">
-                    {employeeSalaries[row.id] &&
-                    employeeSalaries[row.id].advancePayment !== undefined
-                      ? formatCurrency(employeeSalaries[row.id].advancePayment)
-                      : "—"}
-                  </div>
-                  <div className="data-cell col-remaining">
-                    {employeeSalaries[row.id] &&
-                    employeeSalaries[row.id].remainingAmount !== undefined
-                      ? formatCurrency(employeeSalaries[row.id].remainingAmount)
-                      : "—"}
-                  </div>
-                </div>
-              ))
+                ))
               )}
             </div>
           </div>
@@ -570,9 +607,12 @@ function WorkDayTable() {
             }}
           >
             <h3 style={{ marginTop: 0, marginBottom: "20px" }}>
-              Chi tiết chấm công - {employees.find(e => e.id === selectedRow.id)?.fullName || selectedRow.fullName} -  {monthLabel}
+              Chi tiết chấm công -{" "}
+              {employees.find((e) => e.id === selectedRow.id)?.fullName ||
+                selectedRow.fullName}{" "}
+              - {monthLabel}
             </h3>
-          
+
             {loadingTimesheet ? (
               <div
                 style={{
@@ -593,7 +633,9 @@ function WorkDayTable() {
                     animation: "spin 1s linear infinite",
                   }}
                 />
-                <p style={{ color: "#6b7280", margin: 0 }}>Đang tải dữ liệu...</p>
+                <p style={{ color: "#6b7280", margin: 0 }}>
+                  Đang tải dữ liệu...
+                </p>
               </div>
             ) : timesheetData.length > 0 ? (
               <div
@@ -675,7 +717,8 @@ function WorkDayTable() {
                           key={index}
                           style={{
                             borderBottom: "1px solid #e5e7eb",
-                            backgroundColor: index % 2 === 0 ? "#ffffff" : "#f9fafb",
+                            backgroundColor:
+                              index % 2 === 0 ? "#ffffff" : "#f9fafb",
                           }}
                         >
                           <td
@@ -702,7 +745,8 @@ function WorkDayTable() {
                               textAlign: "center",
                               borderRight: "1px solid #e5e7eb",
                               fontWeight: "500",
-                              color: item.overtimeHours > 0 ? "#dc2626" : "#6b7280",
+                              color:
+                                item.overtimeHours > 0 ? "#dc2626" : "#6b7280",
                             }}
                           >
                             {item.overtimeHours > 0 ? item.overtimeHours : "—"}

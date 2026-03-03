@@ -32,10 +32,10 @@ function UserList({ onPageChange }) {
     fetchUsers();
   }, []);
 
-  // Scroll to top when page changes
+  // Scroll to top of list when page changes
   useEffect(() => {
     if (tableWrapperRef.current) {
-      tableWrapperRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      tableWrapperRef.current.scrollTop = 0;
     }
   }, [currentPage]);
 
@@ -413,6 +413,7 @@ function UserList({ onPageChange }) {
           <p>Không có người dùng hoạt động nào</p>
         </div>
       ) : (
+        <>
         <div className="user-list-wrapper" ref={tableWrapperRef}>
           <table className="user-list-table">
             <thead>
@@ -468,44 +469,45 @@ function UserList({ onPageChange }) {
               <p>Không tìm thấy người dùng phù hợp với tiêu chí tìm kiếm</p>
             </div>
           )}
-
-          <div className="user-list-footer">
-            <div className="pagination-info">
-              <p>
-                {filteredUsers.length > 0 ? (
-                  <>
-                    <strong>{startIndex + 1}-{Math.min(endIndex, filteredUsers.length)}</strong> trên tổng số <strong>{filteredUsers.length}</strong> người dùng
-                  </>
-                ) : (
-                  <>Tổng cộng: <strong>0</strong> người dùng</>
-                )}
-              </p>
-            </div>
-            {filteredUsers.length > itemsPerPage && (
-              <div className="pagination-controls">
-                <button
-                  className="pagination-button"
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  title="Trang trước"
-                >
-                  <i className="fa-solid fa-chevron-left"></i> Trước
-                </button>
-                <div className="pagination-info-center">
-                  <span>Trang <strong>{currentPage}</strong> / {totalPages}</span>
-                </div>
-                <button
-                  className="pagination-button"
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  title="Trang sau"
-                >
-                  Sau <i className="fa-solid fa-chevron-right"></i>
-                </button>
-              </div>
-            )}
-          </div>
         </div>
+
+        <div className="user-list-footer">
+          <div className="pagination-info">
+            <p>
+              {filteredUsers.length > 0 ? (
+                <>
+                  <strong>{startIndex + 1}-{Math.min(endIndex, filteredUsers.length)}</strong> trên tổng số <strong>{filteredUsers.length}</strong> người dùng
+                </>
+              ) : (
+                <>Tổng cộng: <strong>0</strong> người dùng</>
+              )}
+            </p>
+          </div>
+          {filteredUsers.length > itemsPerPage && (
+            <div className="pagination-controls">
+              <button
+                className="pagination-button"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                title="Trang trước"
+              >
+                <i className="fa-solid fa-chevron-left"></i> Trước
+              </button>
+              <div className="pagination-info-center">
+                <span>Trang <strong>{currentPage}</strong> / {totalPages}</span>
+              </div>
+              <button
+                className="pagination-button"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                title="Trang sau"
+              >
+                Sau <i className="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          )}
+        </div>
+        </>
       )}
       
       {/* Lock Toggle Confirm Modal */}

@@ -855,9 +855,11 @@ button {
 
 .user-list-wrapper {
   background: white;
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  max-height: 550px;
+  overflow-y: auto;
+  position: relative;
 }
 
 /* Table styling */
@@ -868,12 +870,15 @@ button {
 }
 
 .user-list-table thead {
-  background:#667eea ;
+  background: #667eea;
   color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .user-list-table th {
-  padding: 1rem;
+  padding: 0.6rem 1rem;
   text-align: left;
   font-weight: 600;
   font-size: 0.8rem;
@@ -883,7 +888,7 @@ button {
 }
 
 .user-list-table td {
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid #eee;
   font-size: 0.95rem;
 }
@@ -1041,9 +1046,12 @@ button {
 
 /* Footer */
 .user-list-footer {
-  padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.02);
-  border-top: 1px solid #eee;
+  padding: 0.6rem 1rem;
+  background-color: #667eea;
+  color: white;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1051,24 +1059,30 @@ button {
 }
 
 .pagination-info {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .pagination-info strong {
-  color: #333;
-  font-weight: 600;
+  color: white;
+  font-weight: 700;
 }
 
 .pagination-info-center {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: white;
   white-space: nowrap;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .pagination-info-center strong {
-  color: #333;
-  font-weight: 600;
+  color: white;
+  font-weight: 700;
 }
 
 .pagination-controls {

@@ -411,15 +411,18 @@ export const payrollAPI = {
     }
   },
 
-  // Save single timesheet entry
-  saveTimesheet: async (timesheetData) => {
+  // Update single timesheet entry
+  saveTimesheet: async (userId, date, timesheetData) => {
     try {
+      const response = await api.put(`/payroll/timesheet/user/${userId}/date/${date}`, timesheetData);
       return response.data;
     } catch (error) {
       const errorDetail = {
         status: error.response?.status,
         data: error.response?.data,
         message: error.message,
+        userId: userId,
+        date: date,
         payload: timesheetData
       };
       throw errorDetail;
@@ -434,8 +437,7 @@ export const payrollAPI = {
         items: timesheetItems
       };
 
-      
-      const response = await api.post('/payroll/timesheet/bulk', payload);
+      const response = await api.post(`/payroll/timesheet/user/${employeeId}/bulk`, payload);
       return response.data;
     } catch (error) {
       const errorDetail = {

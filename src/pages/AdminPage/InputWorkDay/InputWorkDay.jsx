@@ -480,6 +480,15 @@ function InputWorkDay() {
             }
           });
 
+          // Save to cached data (original from API)
+          setCachedData((prev) => ({
+            ...prev,
+            timesheet: {
+              ...prev.timesheet,
+              [editingUserId]: { ...timesheetMap },
+            },
+          }));
+
           const daysInMonth = getMonthDays(selectedYear, selectedMonth);
           const monthData = {};
           for (let day = 1; day <= daysInMonth; day++) {
@@ -809,10 +818,14 @@ function InputWorkDay() {
       let successCount = 0;
       let failureCount = 0;
       const errors = [];
-      const timesheetItems = [];
+      const newTimesheetItems = [];
+      const updateTimesheetItems = [];
+
+      // Get cached data for this user
+      const cachedTimesheetData = cachedData.timesheet[editingUserId] || {};
 
       // Collect only changed timesheet entries from currentTimesheetData
-      // Only include days where changed: true AND have actual work data
+      // Separate into new (not in cached) and update (in cached) items
       Object.keys(currentTimesheetData).forEach((dateKey) => {
         const dayData = currentTimesheetData[dateKey];
 
@@ -836,30 +849,60 @@ function InputWorkDay() {
         const overtimeHours =
           dayData.overtimeHours !== undefined ? dayData.overtimeHours : 0;
 
-        timesheetItems.push({
+        const timesheetItem = {
           workDate: dateKey,
           standardWorkDays: standardWorkDays,
           overtimeHours: overtimeHours,
           note: dayData.note || "",
-        });
+        };
+
+        // Separate into new or update items based on cached data
+        if (cachedTimesheetData[dateKey]) {
+          // Has data in cached -> this is an update
+          updateTimesheetItems.push(timesheetItem);
+        } else {
+          // No data in cached -> this is a new entry
+          newTimesheetItems.push(timesheetItem);
+        }
       });
 
-      // Save all timesheet entries in bulk if there are any
-      if (timesheetItems.length > 0) {
+      // Save new timesheet entries in bulk
+      if (newTimesheetItems.length > 0) {
         try {
-          await payrollAPI.saveTimesheetBulk(editingUserId, timesheetItems);
-          successCount = timesheetItems.length;
+          await payrollAPI.saveTimesheetBulk(editingUserId, newTimesheetItems);
+          successCount += newTimesheetItems.length;
         } catch (error) {
-          failureCount = timesheetItems.length;
+          failureCount += newTimesheetItems.length;
           const errorMsg =
             error?.message || JSON.stringify(error) || "Lỗi không xác định";
           errors.push({
             bulk: true,
-            itemCount: timesheetItems.length,
+            itemCount: newTimesheetItems.length,
             error: errorMsg,
           });
         }
-      } else {
+      }
+
+      // Update existing timesheet entries individually
+      for (const updateItem of updateTimesheetItems) {
+        try {
+          const updateData = {
+            standardWorkDays: updateItem.standardWorkDays,
+            overtimeHours: updateItem.overtimeHours,
+            note: updateItem.note,
+          };
+          await payrollAPI.saveTimesheet(editingUserId, updateItem.workDate, updateData);
+          successCount++;
+        } catch (error) {
+          failureCount++;
+          const errorMsg =
+            error?.message || JSON.stringify(error) || "Lỗi không xác định";
+          errors.push({
+            single: true,
+            date: updateItem.workDate,
+            error: errorMsg,
+          });
+        }
       }
 
       // Save salary components
@@ -1634,12 +1677,19 @@ function InputWorkDay() {
                 onClick={() => {
                   if (selectedDateInModal) {
                     const [y, m, d] = selectedDateInModal.split("-");
+                    const origMonth = parseInt(m);
+                    const origYear = parseInt(y);
                     const newDate = new Date(
                       parseInt(y),
                       parseInt(m) - 1,
                       parseInt(d) - 1,
                     );
-                    if (newDate.getDate() > 0) {
+                    // Chỉ cho lùi nếu vẫn ở cùng tháng/năm và ngày >= 1
+                    if (
+                      newDate.getMonth() + 1 === origMonth &&
+                      newDate.getFullYear() === origYear &&
+                      newDate.getDate() >= 1
+                    ) {
                       setSelectedDateInModal(
                         `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, "0")}-${String(newDate.getDate()).padStart(2, "0")}`,
                       );
@@ -1657,6 +1707,8 @@ function InputWorkDay() {
                 onClick={() => {
                   if (selectedDateInModal) {
                     const [y, m, d] = selectedDateInModal.split("-");
+                    const origMonth = parseInt(m);
+                    const origYear = parseInt(y);
                     const newDate = new Date(
                       parseInt(y),
                       parseInt(m) - 1,
@@ -1666,7 +1718,12 @@ function InputWorkDay() {
                       selectedYear,
                       selectedMonth,
                     );
-                    if (newDate.getDate() <= daysInMonth) {
+                    // Chỉ cho tiến nếu vẫn ở cùng tháng/năm và ngày <= daysInMonth
+                    if (
+                      newDate.getMonth() + 1 === origMonth &&
+                      newDate.getFullYear() === origYear &&
+                      newDate.getDate() <= daysInMonth
+                    ) {
                       setSelectedDateInModal(
                         `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, "0")}-${String(newDate.getDate()).padStart(2, "0")}`,
                       );

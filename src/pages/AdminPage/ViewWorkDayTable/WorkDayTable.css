@@ -30,7 +30,13 @@
   font-size: 1rem;
   color: #2c3e50;
 }
-
+.flex-contain-workday {
+   display: flex;
+   gap: 1rem;
+   flex-wrap: wrap;
+   margin-top: 1rem; 
+   justify-content: space-between;
+  }
 .year-picker,
 .month-picker-dropdown {
   padding: 10px 12px;
