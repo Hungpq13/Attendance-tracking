@@ -200,9 +200,9 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
       <div className="personal-info-header">
         <h2 className="personal-info-title">Thông tin cá nhân</h2>
         {showEditMode ? (
-          <div className="header-buttons">
+          <div className="header-profile-buttons">
             <button
-              className="cancel-button"
+              className="cancel-profile-button"
               onClick={handleCancel}
               disabled={saving}
               title="Hủy chỉnh sửa"
@@ -210,7 +210,7 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
               Hủy
             </button>
             <button
-              className="save-button"
+              className="save-profile-button"
               onClick={handleSaveProfile}
               disabled={saving}
               title="Lưu thông tin"

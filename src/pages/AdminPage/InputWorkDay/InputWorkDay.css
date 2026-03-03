@@ -886,6 +886,167 @@
   line-height: 1.2;
 }
 
+/* Advance Payment Section Styles */
+.advance-section {
+  padding: 0.5rem 0;
+  background: transparent;
+  border-top: none;
+  flex-shrink: 0;
+}
+
+.advance-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.advance-section-header .salary-section-title {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.btn-add-advance {
+  padding: 0.5rem 0.75rem;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.btn-add-advance:hover:not(:disabled) {
+  background-color: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add-advance:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.advance-entry {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 0.5rem 0.75rem 0.75rem;
+  background: #f8f9ff;
+  border: 1px solid #e0e4ff;
+  border-radius: 6px;
+  position: relative;
+}
+
+.advance-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .advance-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.advance-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0.5rem;
+  background: #ecf0ff;
+  border-radius: 6px;
+}
+
+.advance-input-group label {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: #374151;
+  margin-bottom: 2px;
+}
+
+.advance-input {
+  padding: 8px 12px;
+  border: 1.5px solid #667eea;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  background-color: white;
+  color: #1f2937;
+  min-height: 36px;
+}
+
+.advance-input:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.15);
+}
+
+.advance-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #f8f9ff;
+}
+
+.advance-input:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+  border-color: #e5e7eb;
+}
+
+.advance-input-group.has-value {
+  background: #ecf0ff;
+  border-left: 3px solid #667eea;
+}
+
+.advance-input-group.has-value label {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.btn-remove-advance {
+  padding: 3px 4px;
+  background-color: transparent;  
+  color: #dc2626;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.42rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  position: absolute;
+  bottom: 0rem;
+  right: 0rem;
+  flex-shrink: 0;
+  font-size: 0.8rem ;
+}
+
+.btn-remove-advance:hover {
+  background-color: #ecd8d8;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.btn-remove-advance:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* Timesheet Summary Styles */
 .timesheet-summary {
   padding: 0.75rem 1rem;
@@ -940,6 +1101,10 @@
   
   .salary-inputs-grid {
     grid-template-columns: 1fr;
+  }
+
+  .advance-inputs-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .summary-grid {

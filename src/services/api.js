@@ -378,6 +378,32 @@ export const payrollAPI = {
     }
   },
 
+  // Get advance payment history for an employee
+  getAdvancePaymentData: async (employeeId) => {
+    try {
+      const response = await api.get(
+        `/payroll/advance/user/${employeeId}`
+      );
+      const { data: responseData } = response;
+      
+      // Check nếu API trả về nested data structure: { success, data: [...] }
+      if (responseData && responseData.data && Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      
+      // Check if responseData itself is an array
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+      
+      // Fallback
+      return responseData?.data || [];
+    } catch (error) {
+      // Return empty array on error
+      return [];
+    }
+  },
+
   // Save single timesheet entry
   saveTimesheet: async (timesheetData) => {
     try {
@@ -426,6 +452,72 @@ export const payrollAPI = {
         data: error.response?.data,
         message: error.message,
         payload: salaryData
+      };
+      throw errorDetail;
+    }
+  },
+
+  // Update salary component
+  updateSalaryComponent: async (componentId, salaryData) => {
+    try {
+      const response = await api.put(`/payroll/salary-structure/${componentId}`, salaryData);
+      return response.data;
+    } catch (error) {
+      const errorDetail = {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        componentId: componentId,
+        payload: salaryData
+      };
+      throw errorDetail;
+    }
+  },
+
+  // Save advance payment
+  saveAdvancePayment: async (advanceData) => {
+    try {
+      const response = await api.post('/payroll/advance', advanceData);
+      return response.data;
+    } catch (error) {
+      const errorDetail = {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        payload: advanceData
+      };
+      throw errorDetail;
+    }
+  },
+
+  // Update advance payment
+  updateAdvancePayment: async (advanceId, advanceData) => {
+    try {
+      const response = await api.put(`/payroll/advance/${advanceId}`, advanceData);
+      return response.data;
+    } catch (error) {
+      const errorDetail = {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        advanceId: advanceId,
+        payload: advanceData
+      };
+      throw errorDetail;
+    }
+  },
+
+  // Delete advance payment
+  deleteAdvancePayment: async (advanceId) => {
+    try {
+      const response = await api.delete(`/payroll/advance/${advanceId}`);
+      return response.data;
+    } catch (error) {
+      const errorDetail = {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        advanceId: advanceId
       };
       throw errorDetail;
     }
