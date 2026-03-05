@@ -7,7 +7,7 @@ import { AuthRepository } from '../../data/repositories/AuthRepository';
 import { LoginUseCase } from '../../domain/usecases/LoginUseCase';
 import { LogoutUseCase } from '../../domain/usecases/LogoutUseCase';
 import { ChangePasswordUseCase } from '../../domain/usecases/ChangePasswordUseCase';
-import { decodeToken, saveTokenToStorage, saveUserToStorage, getUserFromToken, clearAuthStorage, saveTempTokenToStorage, clearTempToken } from '../../config/TokenHelper';
+import { decodeToken, saveTokenToStorage, saveUserToStorage, getUserFromToken, clearAuthStorage, saveTempTokenToStorage, clearTempToken, handleForceLogout } from '../../config/TokenHelper';
 import { STORAGE_TOKEN } from '../../config/constants';
 
 export const useAuth = () => {
@@ -102,6 +102,14 @@ export const useAuth = () => {
   }, []);
 
   /**
+   * Force logout - Logout cứng khi token hết hạn hoặc bị từ chối (401/403)
+   * Không gọi API, chỉ xóa local data và dispatch event
+   */
+  const forceLogout = useCallback(() => {
+    handleForceLogout();
+  }, []);
+
+  /**
    * Thay đổi mật khẩu
    */
   const changePassword = useCallback(async (oldPassword, newPassword, confirmPassword) => {
@@ -183,6 +191,7 @@ export const useAuth = () => {
     error,
     login,
     logout,
+    forceLogout,
     changePassword,
     changeInitialPassword,
     getCurrentUser,

@@ -145,3 +145,37 @@ export const isUsingTempToken = () => {
   return !!getTempToken();
 };
 
+/**
+ * Force Logout - Xóa sạch dữ liệu và dispatch event về lỗi phiên đăng nhập
+ * Dùng khi token expire hoặc respond 401/403 từ server
+ * Dispatch event để App.jsx xử lý toast + navigate
+ */
+export const handleForceLogout = () => {
+  // Nếu chưa có token thì không cần logout
+  if (!localStorage.getItem(STORAGE_TOKEN)) return;
+
+  console.warn('⚠️ Phiên đăng nhập hết hạn - Force logout');
+
+  // 1. XÓA SẠCH TẤT CẢ DỮ LIỆU AUTH
+  clearAuthStorage();
+  clearTempToken();
+  
+  // 2. Dispatch event tokenExpired để App.jsx xử lý toast + navigate
+  window.dispatchEvent(new Event('tokenExpired'));
+  
+  // 3. Dispatch event qua BroadcastChannel để các tab khác biết
+  try {
+    const channel = new BroadcastChannel('auth-channel');
+    channel.postMessage({ type: 'TOKEN_EXPIRED' });
+    channel.close();
+  } catch (error) {
+    // BroadcastChannel có thể không support trên một số trình duyệt
+  }
+
+  // 4. Set localStorage logout-event để các tab khác (dùng storage event) cũng logout
+  try {
+    localStorage.setItem('logout-event', Date.now().toString());
+  } catch (error) {
+  }
+};
+

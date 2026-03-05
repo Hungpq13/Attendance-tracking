@@ -1,5 +1,5 @@
 import { API_BASE_URL, STORAGE_TOKEN, ROUTES } from './constants';
-import { clearAuthStorage } from './TokenHelper';
+import { clearAuthStorage, handleForceLogout } from './TokenHelper';
 
 /**
  * API Client
@@ -27,21 +27,11 @@ export const apiClient = async (url, options = {}) => {
   try {
     const response = await fetch(url, config);
 
-    // Nếu 401 (token hết hạn):
-    if (response.status === 401) {
-      clearAuthStorage(); // Xóa auth data
-      localStorage.setItem("logout-event", Date.now().toString());
-      // 📢 Broadcast event để các tab khác nhận được
-      window.dispatchEvent(new Event('tokenExpired'));
-      // 📢 Broadcast qua BroadcastChannel cho các tab khác
-      try {
-        const channel = new BroadcastChannel('auth-channel');
-        channel.postMessage({ type: 'TOKEN_EXPIRED' });
-        channel.close();
-      } catch (error) {
-        // Ignore BroadcastChannel errors
-      }
-      return Promise.reject("Unauthorized - Token expired");
+    // Nếu 401 (token hết hạn) hoặc 403 (forbidden):
+    if (response.status === 401 || response.status === 403) {
+      console.warn(`⚠️ Status ${response.status} - Triggering force logout`);
+      handleForceLogout();
+      return Promise.reject(`Unauthorized - Status ${response.status}`);
     }
 
     return response;

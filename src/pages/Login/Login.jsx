@@ -44,10 +44,10 @@ function Login() {
       
       // Kiểm tra xem có cần đổi mật khẩu không
       if (result?.requirePasswordChange) {
-        showToast('Vui lòng đổi mật khẩu để tiếp tục.', 'warning');
+        showToast('Vui lòng đổi mật khẩu để tiếp tục.', 'warning'); 
         // Delay slightly to show toast
         setTimeout(() => {
-          navigate('/change-password', { replace: true });
+          navigate('/change-password', { replace: true });  
         }, 500);
       } else if (result?.success) {
         showToast('Đăng nhập thành công!', 'success');
@@ -99,7 +99,7 @@ function Login() {
           <span></span>
           <label htmlFor="password" className={isSubmitting ? 'hidden-animation' : ''}>Mật khẩu</label>
         </div>
-        <div className="pass">Quên mật khẩu?</div>
+        {/* <div className="pass">Quên mật khẩu?</div> */}
         {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{translateErrorMessage(error)}</div>}
         <input 
           type="submit" 

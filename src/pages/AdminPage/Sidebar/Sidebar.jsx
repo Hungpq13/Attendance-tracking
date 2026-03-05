@@ -16,8 +16,8 @@ function Sidebar({ currentPage, onPageChange, isOpen, onClose }) {
   const navigate = useNavigate();
   const location = useLocation();
   const userRole = getUserRole();
-  const [expandedDropdown, setExpandedDropdown] = useState(null);
-  const [collapsedDropdowns, setCollapsedDropdowns] = useState({});
+  // Track mỗi submenu riêng biệt: { 'manage': true/false, 'manage-workday': true/false, ... }
+  const [expandedDropdowns, setExpandedDropdowns] = useState({});
 
   const menuItems = [
     { 
@@ -54,36 +54,24 @@ function Sidebar({ currentPage, onPageChange, isOpen, onClose }) {
 
   const handleItemClick = (id) => {
     if (menuItems.find((item) => item.id === id)?.hasDropdown) {
-      // Toggle dropdown
-      const newExpandedState = expandedDropdown === id ? null : id;
-      setExpandedDropdown(newExpandedState);
-      
-      // Track if user manually collapsed the submenu
-      if (newExpandedState === null) {
-        setCollapsedDropdowns({
-          ...collapsedDropdowns,
-          [id]: true
-        });
-      } else {
-        setCollapsedDropdowns({
-          ...collapsedDropdowns,
-          [id]: false
-        });
-      }
+      // Toggle dropdown cho menu item này
+      setExpandedDropdowns(prev => ({
+        ...prev,
+        [id]: !prev[id]
+      }));
     } else {
       onPageChange(id);
     }
   };
 
   const handleSubMenuClick = (id) => {
-    // Find parent item of this submenu
+    // Mở submenu khi click vào submenu item
     const parentItem = menuItems.find(item => item.hasDropdown && item.submenu?.some(sub => sub.id === id));
     if (parentItem) {
-      // Reset manually collapsed state for this parent when navigating between submenu items
-      setCollapsedDropdowns({
-        ...collapsedDropdowns,
-        [parentItem.id]: false
-      });
+      setExpandedDropdowns(prev => ({
+        ...prev,
+        [parentItem.id]: true
+      }));
     }
     onPageChange(id);
   };
@@ -95,16 +83,15 @@ function Sidebar({ currentPage, onPageChange, isOpen, onClose }) {
     );
   };
 
-  // Auto-reset collapsed state when navigating pages
+  // Auto-mở submenu parent khi navigate đến submenu item
   useEffect(() => {
-    // Find which parent item contains the current page
+    // Tìm submenu parent của current page
     const parentItem = menuItems.find(item => isSubmenuItemActive(item));
     if (parentItem) {
-      // Reset collapsed state for this item when we navigate to its submenu page
-      setCollapsedDropdowns({
-        ...collapsedDropdowns,
-        [parentItem.id]: false
-      });
+      setExpandedDropdowns(prev => ({
+        ...prev,
+        [parentItem.id]: true
+      }));
     }
   }, [currentPage]);
 
@@ -140,7 +127,7 @@ function Sidebar({ currentPage, onPageChange, isOpen, onClose }) {
                 <button
                   onClick={() => handleItemClick(item.id)}
                   className={`nav-item ${currentPage === item.id ? 'active' : ''} ${
-                    expandedDropdown === item.id || (isSubmenuItemActive(item) && !collapsedDropdowns[item.id]) ? 'expanded' : ''
+                    expandedDropdowns[item.id] ? 'expanded' : ''
                   }`}
                 >
                   <div className="nav-item-content">
@@ -148,14 +135,14 @@ function Sidebar({ currentPage, onPageChange, isOpen, onClose }) {
                     <span className="nav-label">{item.label}</span>
                   </div>
                   {item.hasDropdown && (
-                    <span className={`dropdown-arrow ${expandedDropdown === item.id || (isSubmenuItemActive(item) && !collapsedDropdowns[item.id]) ? 'open' : ''}`}>
+                    <span className={`dropdown-arrow ${expandedDropdowns[item.id] ? 'open' : ''}`}>
                       <i className="fa-solid fa-chevron-down"></i>
                     </span>
                   )}
                 </button>
 
                 {/* Dropdown submenu */}
-                {item.hasDropdown && (expandedDropdown === item.id || (isSubmenuItemActive(item) && !collapsedDropdowns[item.id])) && item.submenu && (
+                {item.hasDropdown && expandedDropdowns[item.id] && item.submenu && (
                   <div className="dropdown-menu">
                     {item.submenu.filter(subitem => subitem.checkAccess?.()).map((subitem) => (
                       <button
