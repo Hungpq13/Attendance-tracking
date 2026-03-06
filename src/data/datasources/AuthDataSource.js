@@ -4,6 +4,8 @@
  */
 import axios from 'axios';
 import { API_BASE_URL, STORAGE_TOKEN, API_ENDPOINTS } from '../../config/constants';
+import { clearAuthStorage } from '../../config/TokenHelper';
+
 /**
  * 🔍 Debug: In tất cả cookies hiện có
  */
@@ -44,6 +46,12 @@ authAxios.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      console.warn(`⚠️ Status ${error.response.status} - Redirecting to login`);
+      sessionStorage.setItem('auth-expired-toast', '1');
+      clearAuthStorage(); // Xóa token và user info
+      window.location.href = '/';
+    }
     throw error;
   }
 );

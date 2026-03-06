@@ -124,7 +124,7 @@ function ChangePassword() {
   const handleCancel = () => {
     if (isInitialPasswordChange) {
       // Can't cancel initial password change, go back to login
-      navigate('/login', { replace: true });
+      navigate('/', { replace: true });
     } else {
       // Can cancel regular change
       navigate('/main', { replace: true });

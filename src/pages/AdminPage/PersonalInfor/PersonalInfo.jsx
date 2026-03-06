@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../../presentation/hooks/useAuth";
 import { useUser } from "../../../presentation/hooks/useUser";
 import { useToast } from "../../../hooks/useToast";
@@ -10,6 +10,7 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
   const [id, setId] = useState("");
   const [fullName, setFullName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [dateOfBirthInput, setDateOfBirthInput] = useState("");
   const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -19,6 +20,7 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
   const [saving, setSaving] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [originalValues, setOriginalValues] = useState({});
+  const hiddenDatePickerRef = useRef(null);
 
   const { getCurrentUser } = useAuth();
   const { profile, loading, loadProfile, loadProfileMe, updateProfileMe, updateUser } = useUser();
@@ -93,6 +95,50 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
     return dateValue;
   };
 
+  const isValidDateInput = (dateInputValue) => {
+    const match = dateInputValue.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) return false;
+
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+    const parsed = new Date(year, month - 1, day);
+
+    return (
+      parsed.getFullYear() === year &&
+      parsed.getMonth() === month - 1 &&
+      parsed.getDate() === day
+    );
+  };
+
+  const normalizeDateInput = (rawValue) => {
+    const digits = rawValue.replace(/\D/g, '').slice(0, 8);
+    const day = digits.slice(0, 2);
+    const month = digits.slice(2, 4);
+    const year = digits.slice(4, 8);
+
+    if (digits.length <= 2) return day;
+    if (digits.length <= 4) return `${day}/${month}`;
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleCalendarButtonClick = () => {
+    if (!hiddenDatePickerRef.current) return;
+
+    if (typeof hiddenDatePickerRef.current.showPicker === 'function') {
+      hiddenDatePickerRef.current.showPicker();
+      return;
+    }
+
+    hiddenDatePickerRef.current.focus();
+    hiddenDatePickerRef.current.click();
+  };
+
+  const handleCalendarDateChange = (value) => {
+    setDateOfBirth(value || '');
+    setDateOfBirthInput(formatDateForInput(value || ''));
+  };
+
   // Convert from DD/MM/YYYY (input format) to YYYY-MM-DD (internal format)
   const formatDateInputToDB = (dateInputValue) => {
     if (!dateInputValue) return '';
@@ -117,6 +163,11 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
   const handleSaveProfile = async () => {
     try {
       setSaving(true);
+
+      if (showEditMode && dateOfBirthInput && !isValidDateInput(dateOfBirthInput)) {
+        showToast('Ngày sinh không hợp lệ. Vui lòng nhập theo dạng dd/mm/yyyy', 'warning');
+        return;
+      }
       
       // Lấy user ID từ token
       const user = getCurrentUser();
@@ -163,6 +214,7 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
     setFullName(originalValues.fullName || "");
     setEmail(originalValues.email || "");
     setDateOfBirth(originalValues.dateOfBirth || "");
+    setDateOfBirthInput(formatDateForInput(originalValues.dateOfBirth || ""));
     setGender(originalValues.gender || "");
     setPhoneNumber(originalValues.phoneNumber || "");
     
@@ -197,6 +249,7 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
         setFullName(profileMeData.fullName || "");
         setEmail(profileMeData.email || "");
         setDateOfBirth(dobValue);
+        setDateOfBirthInput(formatDateForInput(dobValue));
         setGender(convertGenderFromAPI(profileMeData.gender || ""));
         setPhoneNumber(profileMeData.phoneNumber || "");
         
@@ -252,6 +305,7 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
                 gender,
                 phoneNumber
               });
+              setDateOfBirthInput(formatDateForInput(dateOfBirth));
               setShowEditMode(true);
             }}
             title="Chỉnh sửa trang cá nhân"
@@ -328,16 +382,43 @@ function PersonalInfo({ onAvatarChange, onProfileUpdate }) {
           <label htmlFor="dateOfBirth">Ngày sinh</label>
           <div className="input-wrapper">
             {showEditMode ? (
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div className="input-wrapper">
                 <input
-                  type="date"
+                  type="text"
                   id="dateOfBirth"
-                  value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  value={dateOfBirthInput}
+                  onChange={(e) => {
+                    const normalized = normalizeDateInput(e.target.value);
+                    setDateOfBirthInput(normalized);
+
+                    if (normalized.length === 10 && isValidDateInput(normalized)) {
+                      setDateOfBirth(formatDateInputToDB(normalized));
+                    } else if (!normalized) {
+                      setDateOfBirth('');
+                    }
+                  }}
                   className="form-input"
-                  style={{ flex: 1 }}
+                  placeholder="dd/mm/yyyy"
+                  maxLength={10}
                 />
-               
+                <button
+                  type="button"
+                  className="input-icon-button"
+                  onClick={handleCalendarButtonClick}
+                  title="Chọn ngày từ lịch"
+                  aria-label="Chọn ngày sinh từ lịch"
+                >
+                  <i className="fa-regular fa-calendar"></i>
+                </button>
+                <input
+                  ref={hiddenDatePickerRef}
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => handleCalendarDateChange(e.target.value)}
+                  className="hidden-date-picker-input"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
               </div>
             ) : (
               <input

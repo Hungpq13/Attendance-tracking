@@ -13,7 +13,7 @@ function CreateUser() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [useAutoPassword, setUseAutoPassword] = useState(true);
+  const [useAutoPassword, setUseAutoPassword] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState("");

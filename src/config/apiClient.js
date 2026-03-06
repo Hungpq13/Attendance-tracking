@@ -1,5 +1,5 @@
-import { API_BASE_URL, STORAGE_TOKEN, ROUTES } from './constants';
-import { clearAuthStorage, handleForceLogout } from './TokenHelper';
+import { API_BASE_URL, STORAGE_TOKEN } from './constants';
+import { clearAuthStorage } from './TokenHelper';
 
 /**
  * API Client
@@ -29,8 +29,10 @@ export const apiClient = async (url, options = {}) => {
 
     // Nếu 401 (token hết hạn) hoặc 403 (forbidden):
     if (response.status === 401 || response.status === 403) {
-      console.warn(`⚠️ Status ${response.status} - Triggering force logout`);
-      handleForceLogout();
+      console.warn(`⚠️ Status ${response.status} - Redirecting to login`);
+      sessionStorage.setItem('auth-expired-toast', '1');
+      clearAuthStorage();
+      window.location.href = '/';
       return Promise.reject(`Unauthorized - Status ${response.status}`);
     }
 

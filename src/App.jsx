@@ -17,6 +17,17 @@ function AppContent() {
   const toast = useToast();
   const hasShownToastRef = useRef(false);
 
+  // Hiển thị toast sau khi bị redirect do 401/403
+  useEffect(() => {
+    if (location.pathname !== ROUTES.LOGIN) return;
+
+    const shouldShowExpiredToast = sessionStorage.getItem('auth-expired-toast') === '1';
+    if (shouldShowExpiredToast) {
+      toast.showToast('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại', 'error');
+      sessionStorage.removeItem('auth-expired-toast');
+    }
+  }, [location.pathname, toast]);
+
   //  Reset toast flag khi login thành công (token được add vào localStorage)
   useEffect(() => {
     const handleTokenAdded = (e) => {
@@ -43,8 +54,7 @@ function AppContent() {
   //  Lắng nghe tokenExpired event từ apiClient
   useEffect(() => {
     const handleTokenExpired = () => {
-      toast.showToast('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại', 'error');
-      navigate(ROUTES.LOGIN);
+      window.location.reload();
     };
     window.addEventListener('tokenExpired', handleTokenExpired);
     return () => window.removeEventListener('tokenExpired', handleTokenExpired);
@@ -56,8 +66,7 @@ function AppContent() {
       const channel = new BroadcastChannel('auth-channel');
       channel.onmessage = (event) => {
         if (event.data.type === 'TOKEN_EXPIRED') {
-        
-          navigate(ROUTES.LOGIN);
+          window.location.reload();
         }
       };
       return () => channel.close();
@@ -70,12 +79,7 @@ function AppContent() {
     const handleStorageChange = (e) => {
       if ((e.key === STORAGE_TOKEN && e.newValue === null) || 
           (e.key === 'logout-event' && e.newValue !== null)) {
-        // ✅ Chỉ show toast 1 lần, tránh React Strict Mode double call
-        if (!hasShownToastRef.current) {
-          hasShownToastRef.current = true;
-          toast.showToast('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại', 'error');
-        }
-        navigate(ROUTES.LOGIN);
+        window.location.reload();
       }
     };
     window.addEventListener('storage', handleStorageChange);
