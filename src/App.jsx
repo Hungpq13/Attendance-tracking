@@ -51,14 +51,8 @@ function AppContent() {
     }
   }, [location.pathname, navigate]);
 
-  //  Lắng nghe tokenExpired event từ apiClient
-  useEffect(() => {
-    const handleTokenExpired = () => {
-      window.location.reload();
-    };
-    window.addEventListener('tokenExpired', handleTokenExpired);
-    return () => window.removeEventListener('tokenExpired', handleTokenExpired);
-  }, [navigate]);
+  //  Không cần lắng nghe tokenExpired event nữa vì đã redirect trực tiếp trong interceptor
+  //  Toast sẽ hiện sau khi redirect qua sessionStorage flag 'auth-expired-toast'
 
   //  Lắng nghe BroadcastChannel từ các tab khác
   useEffect(() => {
@@ -66,7 +60,7 @@ function AppContent() {
       const channel = new BroadcastChannel('auth-channel');
       channel.onmessage = (event) => {
         if (event.data.type === 'TOKEN_EXPIRED') {
-          window.location.reload();
+          window.location.href = '/';
         }
       };
       return () => channel.close();
@@ -79,7 +73,7 @@ function AppContent() {
     const handleStorageChange = (e) => {
       if ((e.key === STORAGE_TOKEN && e.newValue === null) || 
           (e.key === 'logout-event' && e.newValue !== null)) {
-        window.location.reload();
+        window.location.href = '/';
       }
     };
     window.addEventListener('storage', handleStorageChange);

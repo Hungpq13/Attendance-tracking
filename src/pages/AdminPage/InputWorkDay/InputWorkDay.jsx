@@ -23,14 +23,14 @@ function InputWorkDay() {
     },
   );
 
-  // Generate year options (from 2020 to current year)
+  // Tạo năm từ 2020 đến năm hiện tại
   const startYear = 2020;
   const years = Array.from(
     { length: currentYear - startYear + 1 },
     (_, i) => startYear + i,
   );
 
-  // Months array
+  // Danh sách tháng
   const months = [
     { value: 1, label: "Tháng 1" },
     { value: 2, label: "Tháng 2" },
@@ -46,32 +46,32 @@ function InputWorkDay() {
     { value: 12, label: "Tháng 12" },
   ];
 
-  // Check if a month/year is in the future
+  // Kiểm tra nếu ngày hiện tại đã vượt quá ngày của tháng, nếu có thì cho phép chọn tháng tiếp theo
   const isFutureDate = (year, month) => {
     if (year > currentYear) return true;
     if (year === currentYear && month > currentMonth) return true;
     return false;
   };
 
-  // Helper function to extract day from YYYY-MM-DD format
+  // Hàm hỗ trợ định dạng YYYY-MM-DD
   const getDayFromDate = (dateString) => {
     if (!dateString) return "";
     const parts = dateString.split('-');
     return parts[2] || "";
   };
 
-  // Helper function to get max day for selected month/year
+  // Hàm hỗ trợ lấy ngày tối đa theo tháng/năm đã chọn
   const getMaxDayForMonth = (month, year) => {
     return new Date(year, month, 0).getDate();
   };
 
-  // Helper function to construct date from day with fixed selected month/year
+  // Hàm hỗ trợ tạo ngày đầy đủ từ ngày nhập, dựa trên tháng/năm đã chọn
   const constructDateWithDay = (day) => {
     if (!day || day < 1) return "";
     const maxDay = getMaxDayForMonth(selectedMonth, selectedYear);
     const dayNum = parseInt(day);
     
-    // Ensure day doesn't exceed max day for the month
+    // Nếu ngày nhập vượt quá max day của tháng, trả về empty string để clear input
     if (dayNum > maxDay) return "";
     
     const dayStr = String(dayNum).padStart(2, '0');
@@ -81,36 +81,36 @@ function InputWorkDay() {
 
   const [users, setUsers] = useState([]);
   const [selectedUserIds, setSelectedUserIds] = useState(() => {
-    // Load from localStorage on initial render
+    // Load selected user IDs từ localStorage
     const saved = localStorage.getItem("selectedUserIds");
     return saved ? JSON.parse(saved) : [];
   });
   const [userUpdateOrder, setUserUpdateOrder] = useState(() => {
-    // Load update order from localStorage
+    // Load update order từ localStorage
     const saved = localStorage.getItem("userUpdateOrder");
     return saved ? JSON.parse(saved) : [];
   });
   const [showModal, setShowModal] = useState(false);
-  const [editingUserId, setEditingUserId] = useState(null); // Currently editing in modal
+  const [editingUserId, setEditingUserId] = useState(null); 
   const [searchInput, setSearchInput] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-  const [selectedDateInModal, setSelectedDateInModal] = useState(null); // For calendar view
-  const [showCalendarModal, setShowCalendarModal] = useState(false); // Calendar selection modal
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false); // Custom confirmation modal
-  const [confirmationAction, setConfirmationAction] = useState(null); // What to do after confirmation
-  const [hasChanges, setHasChanges] = useState(false); // Flag to track if there are unsaved changes
+  const [selectedDateInModal, setSelectedDateInModal] = useState(null); 
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false); 
+  const [confirmationAction, setConfirmationAction] = useState(null); 
+  const [hasChanges, setHasChanges] = useState(false);
   const searchInputRef = useRef(null);
 
-  // Use toast notification hook
+  // Sử dụng hook thông báo toast
   const { showToast } = useToast();
 
-  // Fetch users from API
+  // Lấy danh sách người dùng từ API
   useEffect(() => {
     const loadUsers = async () => {
       try {
         const employeeList = await userAPI.getAllUsers();
-        // Include all users, show "unknown" for missing fullName
+        // Bao gồm tất cả người dùng, hiển thị "unknown" nếu thiếu fullName
         const filteredUsers = employeeList
           .map((emp) => ({
             id: emp.id,
@@ -125,7 +125,7 @@ function InputWorkDay() {
         setUsers(filteredUsers);
       } catch (error) {
         showToast(
-          "Lỗi tải danh sách nhân viên: " + (error.message || "Unknown error"),
+          "Lỗi tải danh sách nhân viên: " + (error.message || "Lỗi không xác định"),
           "error",
         );
       }
@@ -134,12 +134,12 @@ function InputWorkDay() {
     loadUsers();
   }, [showToast]);
 
-  // Save selectedUserIds to localStorage
+  // Lưu selectedUserIds vào localStorage
   useEffect(() => {
     localStorage.setItem("selectedUserIds", JSON.stringify(selectedUserIds));
   }, [selectedUserIds]);
 
-  // Save userUpdateOrder to localStorage
+  // Lưu userUpdateOrder vào localStorage
   useEffect(() => {
     localStorage.setItem("userUpdateOrder", JSON.stringify(userUpdateOrder));
   }, [userUpdateOrder]);
@@ -153,7 +153,7 @@ function InputWorkDay() {
         !e.target.closest(".note-input-container")
       ) {
         setShowDropdown(false);
-        // Close all note dropdowns
+        // Đóng tất cả dropdown ghi chú
         setNoteDropdownOpen({});
       }
     };
@@ -162,7 +162,7 @@ function InputWorkDay() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // Update dropdown position when it's shown or window is resized
+  // Cập nhật vị trí dropdown khi hiển thị hoặc khi đổi kích thước cửa sổ
   useEffect(() => {
     if (showDropdown && searchInputRef.current) {
       const rect = searchInputRef.current.getBoundingClientRect();
@@ -173,7 +173,7 @@ function InputWorkDay() {
     }
   }, [showDropdown]);
 
-  // Reset selected date when calendar modal opens
+  // Reset ngày đã chọn khi mở modal lịch
   useEffect(() => {
     if (showCalendarModal && selectedYear && selectedMonth) {
       const firstDay = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-01`;
@@ -181,7 +181,7 @@ function InputWorkDay() {
     }
   }, [showCalendarModal, selectedYear, selectedMonth]);
 
-  // Update position on scroll
+  // Cập nhật vị trí khi cuộn trang
   useEffect(() => {
     if (!showDropdown) return;
 
@@ -200,12 +200,12 @@ function InputWorkDay() {
   }, [showDropdown]);
 
   const [timesheetData, setTimesheetData] = useState(() => {
-    // Load from localStorage on initial render
+    // Tải từ localStorage ở lần render đầu tiên
     try {
       const saved = localStorage.getItem("timesheetData");
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Normalize: ensure all day items have 'changed' property
+        // Chuẩn hóa: đảm bảo mọi bản ghi ngày có thuộc tính 'changed'
         const normalized = {};
         Object.keys(parsed).forEach((userId) => {
           normalized[userId] = {};
@@ -231,7 +231,7 @@ function InputWorkDay() {
     }
   });
 
-  // Save timesheetData to localStorage
+  // Lưu timesheetData vào localStorage
   useEffect(() => {
     try {
       localStorage.setItem("timesheetData", JSON.stringify(timesheetData));
@@ -241,14 +241,14 @@ function InputWorkDay() {
   const [noteDropdownOpen, setNoteDropdownOpen] = useState({});
   const [noteInputMode, setNoteInputMode] = useState({});
 
-  // Cached API data - stores fetched timesheet and salary data
+  // Dữ liệu API đã cache - lưu dữ liệu chấm công và lương đã tải
   const [cachedData, setCachedData] = useState({
     timesheet: {}, // { userId: { dateKey: { standardWorkDays, overtimeHours, note } } }
     salary: {}, // { userId: { componentId: amount } }
   });
 
   const [salaryData, setSalaryData] = useState(() => {
-    // Load from localStorage on initial render
+    // Tải từ localStorage ở lần render đầu tiên
     try {
       const saved = localStorage.getItem("salaryData");
       return saved ? JSON.parse(saved) : {};
@@ -257,16 +257,16 @@ function InputWorkDay() {
     }
   });
 
-  // Normalize advance data - convert old object format to new array format
+  // Chuẩn hóa dữ liệu tạm ứng - chuyển định dạng object cũ sang mảng mới
   const normalizeAdvanceData = (data) => {
     const normalized = {};
     Object.keys(data).forEach((userId) => {
       const userAdvanceData = data[userId];
-      // If it's already an array, keep it
+      // Nếu đã là mảng thì giữ nguyên
       if (Array.isArray(userAdvanceData)) {
         normalized[userId] = userAdvanceData;
       }
-      // If it's an object with date/amount/note, convert to array with single entry
+      // Nếu là object có date/amount/note thì đổi thành mảng một phần tử
       else if (
         userAdvanceData &&
         typeof userAdvanceData === "object" &&
@@ -274,7 +274,7 @@ function InputWorkDay() {
       ) {
         normalized[userId] = [userAdvanceData];
       }
-      // Otherwise default to empty array
+      // Trường hợp khác mặc định là mảng rỗng
       else {
         normalized[userId] = [];
       }
@@ -283,41 +283,41 @@ function InputWorkDay() {
   };
 
   const [advanceData, setAdvanceData] = useState(() => {
-    // Load from localStorage on initial render
+    // Tải từ localStorage ở lần render đầu tiên
     try {
       const saved = localStorage.getItem("advanceData");
       const parsed = saved ? JSON.parse(saved) : {};
-      // Normalize old data format to new array format
+      // Chuẩn hóa dữ liệu cũ sang định dạng mảng mới
       return normalizeAdvanceData(parsed);
     } catch (error) {
       return {};
     }
   });
 
-  // Track original advance data from API (before changes)
+  // Theo dõi dữ liệu tạm ứng gốc từ API (trước khi chỉnh sửa)
   const [originalAdvanceData, setOriginalAdvanceData] = useState({});
 
-  // Track original salary data from API (before changes)
+  // Theo dõi dữ liệu lương gốc từ API (trước khi chỉnh sửa)
   const [originalSalaryData, setOriginalSalaryData] = useState({});
 
-  // Track salary structure IDs from API (mapping componentId -> salaryStructureId)
+  // Theo dõi ID cấu trúc lương từ API (map componentId -> salaryStructureId)
   const [salaryStructureIds, setSalaryStructureIds] = useState({});
 
-  // Save salaryData to localStorage
+  // Lưu salaryData vào localStorage
   useEffect(() => {
     try {
       localStorage.setItem("salaryData", JSON.stringify(salaryData));
     } catch (error) {}
   }, [salaryData]);
 
-  // Save advanceData to localStorage
+  // Lưu advanceData vào localStorage
   useEffect(() => {
     try {
       localStorage.setItem("advanceData", JSON.stringify(advanceData));
     } catch (error) {}
   }, [advanceData]);
 
-  // Validate advance dates when month/year changes
+  // Kiểm tra hợp lệ ngày tạm ứng khi thay đổi tháng/năm
   useEffect(() => {
     setAdvanceData((prevData) => {
       const updatedData = { ...prevData };
@@ -328,7 +328,7 @@ function InputWorkDay() {
           updatedData[userId] = updatedData[userId].map((entry) => {
             if (entry.date) {
               const day = parseInt(getDayFromDate(entry.date));
-              // If day exceeds max day for the month, clear the date
+              // Nếu ngày vượt quá ngày tối đa của tháng thì xóa ngày
               if (day > maxDay) {
                 return { ...entry, date: "" };
               }
@@ -342,7 +342,7 @@ function InputWorkDay() {
     });
   }, [selectedMonth, selectedYear]);
 
-  // Note options
+  // Tùy chọn ghi chú
   const noteOptions = [
     { value: "Tăng ca", label: "Tăng ca" },
     { value: "Tăng ca full", label: "Tăng ca full" },
@@ -350,7 +350,7 @@ function InputWorkDay() {
     { value: "khác", label: "Khác" },
   ];
 
-  // Salary components
+  // Thành phần lương
   const salaryComponents = [
     { id: 1, label: "Lương ngày công", code: "DAILY_BASE" },
     { id: 2, label: "Phụ cấp nhà trọ", code: "HOUSING" },
@@ -358,7 +358,7 @@ function InputWorkDay() {
     { id: 4, label: "Phụ cấp điện thoại", code: "PHONE" },
   ];
 
-  // Get current user's timesheet data for the month
+  // Lấy dữ liệu chấm công tháng của người dùng hiện tại
   const getMonthDays = (year, month) => {
     return new Date(year, month, 0).getDate();
   };
@@ -366,22 +366,22 @@ function InputWorkDay() {
   const currentMonthDays = getMonthDays(selectedYear, selectedMonth);
   const currentTimesheetData = timesheetData[editingUserId] || {};
 
-  // Normalize date to YYYY-MM-DD format for HTML date input
+  // Chuẩn hóa ngày sang định dạng YYYY-MM-DD cho input date HTML
   const normalizeDateFormat = (dateStr) => {
     if (!dateStr) return "";
 
-    // If already in YYYY-MM-DD format, return as is
+    // Nếu đã ở định dạng YYYY-MM-DD thì trả về luôn
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
       return dateStr;
     }
 
-    // If in DD/MM/YYYY format, convert to YYYY-MM-DD
+    // Nếu ở định dạng DD/MM/YYYY thì chuyển sang YYYY-MM-DD
     if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
       const [day, month, year] = dateStr.split("/");
       return `${year}-${month}-${day}`;
     }
 
-    // If it's ISO format with time (2026-03-01T00:00:00), extract date part
+    // Nếu là định dạng ISO có thời gian (2026-03-01T00:00:00) thì tách phần ngày
     if (dateStr.includes("T")) {
       return dateStr.split("T")[0];
     }
@@ -389,7 +389,7 @@ function InputWorkDay() {
     return dateStr;
   };
 
-  // Add a new advance payment entry
+  // Thêm một dòng tạm ứng mới
   const addAdvanceEntry = () => {
     setHasChanges(true);
     setAdvanceData({
@@ -401,18 +401,18 @@ function InputWorkDay() {
     });
   };
 
-  // Remove an advance payment entry
+  // Xóa một dòng tạm ứng
   const removeAdvanceEntry = async (index) => {
     try {
       const entries = advanceData[editingUserId] || [];
       const entryToDelete = entries[index];
 
-      // If entry has an ID, delete from API first
+      // Nếu dòng có ID thì xóa trên API trước
       if (entryToDelete && entryToDelete.id) {
         await payrollAPI.deleteAdvancePayment(entryToDelete.id);
       }
 
-      // Update local state
+      // Cập nhật state cục bộ
       setHasChanges(true);
       const updatedEntries = entries.filter((_, i) => i !== index);
       setAdvanceData({
@@ -426,7 +426,7 @@ function InputWorkDay() {
     }
   };
 
-  // Update an advance payment entry
+  // Cập nhật một dòng tạm ứng
   const updateAdvanceEntry = (index, field, value) => {
     setHasChanges(true);
     const entries = advanceData[editingUserId] || [];
@@ -441,7 +441,7 @@ function InputWorkDay() {
     });
   };
 
-  // Fetch API data when editingUserId changes - always fetch fresh data
+  // Tải dữ liệu API khi editingUserId thay đổi - luôn lấy dữ liệu mới
   useEffect(() => {
     if (!editingUserId) return;
 
@@ -450,7 +450,7 @@ function InputWorkDay() {
       .then((apiData) => {
         let timesheetArray = [];
 
-        // Handle different response formats
+        // Xử lý nhiều định dạng phản hồi khác nhau
         if (Array.isArray(apiData)) {
           timesheetArray = apiData;
         } else if (
@@ -480,7 +480,7 @@ function InputWorkDay() {
             }
           });
 
-          // Save to cached data (original from API)
+          // Lưu vào dữ liệu cache (dữ liệu gốc từ API)
           setCachedData((prev) => ({
             ...prev,
             timesheet: {
@@ -525,16 +525,16 @@ function InputWorkDay() {
         }
       })
       .catch((error) => {
-        // Timesheet fetch error handling
+        // Xử lý lỗi khi tải dữ liệu chấm công
       });
 
-    // Always fetch salary data
+    // Luôn tải dữ liệu lương
     payrollAPI
       .getSalaryStructure(editingUserId)
       .then((apiSalaryData) => {
         let salaryArray = [];
 
-        // Handle different response formats
+        // Xử lý nhiều định dạng phản hồi khác nhau
         if (Array.isArray(apiSalaryData)) {
           salaryArray = apiSalaryData;
         } else if (
@@ -562,8 +562,8 @@ function InputWorkDay() {
             );
             if (component) {
               salaryMap[component.id] = item.amount || 0;
-              structureIdMap[component.id] = item.id; // Store the API salary structure ID
-              originalSalaryMap[component.id] = item.amount || 0; // Store original amount
+              structureIdMap[component.id] = item.id; // Lưu ID cấu trúc lương từ API
+              originalSalaryMap[component.id] = item.amount || 0; // Lưu mức tiền gốc
             }
           });
 
@@ -599,16 +599,16 @@ function InputWorkDay() {
         }
       })
       .catch((error) => {
-        // Salary data fetch error handling
+        // Xử lý lỗi khi tải dữ liệu lương
       });
 
-    // Always fetch advance payment data
+    // Luôn tải dữ liệu tạm ứng
     payrollAPI
       .getAdvancePaymentData(editingUserId, selectedMonth, selectedYear)
       .then((apiAdvanceData) => {
         let advanceArray = [];
 
-        // Handle different response formats
+        // Xử lý nhiều định dạng phản hồi khác nhau
         if (Array.isArray(apiAdvanceData)) {
           advanceArray = apiAdvanceData;
         } else if (
@@ -621,31 +621,31 @@ function InputWorkDay() {
         }
 
         if (advanceArray && advanceArray.length > 0) {
-          // Map API response fields (advanceDate, amount, note) to our format (date, amount, note)
-          // Filter by selected month and year
+          // Ánh xạ trường từ API (advanceDate, amount, note) sang định dạng dùng trong UI (date, amount, note)
+          // Lọc theo tháng và năm đã chọn
           const mappedAdvanceData = advanceArray
             .map((item) => {
-              // Extract date from ISO format "2026-03-01T00:00:00" -> "2026-03-01"
+              // Tách ngày từ định dạng ISO "2026-03-01T00:00:00" -> "2026-03-01"
               let dateValue = "";
               if (item.advanceDate) {
-                // Simple extraction: get everything before the 'T' character
+                // Tách đơn giản: lấy phần trước ký tự 'T'
                 dateValue = item.advanceDate.split("T")[0];
               }
               return {
-                id: item.id, // Store the advance ID for delete operations
-                date: dateValue, // Store as "YYYY-MM-DD" format
+                id: item.id, // Lưu ID tạm ứng để phục vụ thao tác xóa
+                date: dateValue, // Lưu theo định dạng "YYYY-MM-DD"
                 amount: item.amount || "",
                 note: item.note || "",
               };
             });
 
-          // Save original data for change detection
+          // Lưu dữ liệu gốc để so sánh thay đổi
           setOriginalAdvanceData((prev) => ({
             ...prev,
             [editingUserId]: [...mappedAdvanceData],
           }));
 
-          // Filter to only show entries from selected month and year
+          // Chỉ hiển thị các dòng thuộc tháng và năm đã chọn
           const filteredAdvanceData = mappedAdvanceData.filter((entry) => {
             if (!entry.date) return false;
             const [year, month, day] = entry.date.split("-").map(Number);
@@ -657,7 +657,7 @@ function InputWorkDay() {
             [editingUserId]: filteredAdvanceData,
           }));
         } else {
-          // Initialize empty array for this user if no advance data exists
+          // Khởi tạo mảng rỗng cho user này nếu chưa có dữ liệu tạm ứng
           setAdvanceData((prev) => ({
             ...prev,
             [editingUserId]: [],
@@ -665,7 +665,7 @@ function InputWorkDay() {
         }
       })
       .catch((error) => {
-        // Advance payment fetch error handling - initialize with empty array
+        // Xử lý lỗi tải dữ liệu tạm ứng - khởi tạo mảng rỗng
         setAdvanceData((prev) => ({
           ...prev,
           [editingUserId]: [],
@@ -673,24 +673,24 @@ function InputWorkDay() {
       });
   }, [editingUserId, selectedMonth, selectedYear]);
 
-  // Handle user selection - triggers data fetch via useEffect
+  // Xử lý chọn người dùng - kích hoạt tải dữ liệu qua useEffect
   const handleSelectUser = (user) => {
-    // Reset changes flag when selecting a new user
+    // Reset cờ thay đổi khi chọn người dùng mới
     setHasChanges(false);
 
-    // Check if user already selected
+    // Kiểm tra người dùng đã được chọn chưa
     if (selectedUserIds.includes(user.id)) {
-      // Update user update order - move to front
+      // Cập nhật thứ tự chỉnh sửa user - đưa lên đầu
       const newOrder = userUpdateOrder.filter((id) => id !== user.id);
       newOrder.unshift(user.id);
       setUserUpdateOrder(newOrder);
 
-      // Just set as editing user
+      // Chỉ đặt làm user đang chỉnh sửa
       setEditingUserId(user.id);
       setShowModal(true);
       setShowDropdown(false);
       
-      // Initialize original salary data from current state
+      // Khởi tạo dữ liệu lương gốc từ state hiện tại
       if (!originalSalaryData[user.id]) {
         setOriginalSalaryData((prev) => ({
           ...prev,
@@ -700,16 +700,16 @@ function InputWorkDay() {
       return;
     }
 
-    // Add user to selected list
+    // Thêm người dùng vào danh sách đã chọn
     const newSelectedUserIds = [...selectedUserIds, user.id];
     setSelectedUserIds(newSelectedUserIds);
 
-    // Update user update order - move to front
+    // Cập nhật thứ tự chỉnh sửa user - đưa lên đầu
     const newOrder = userUpdateOrder.filter((id) => id !== user.id);
     newOrder.unshift(user.id);
     setUserUpdateOrder(newOrder);
 
-    // Initialize advance data for new user if not exists
+    // Khởi tạo dữ liệu tạm ứng cho user mới nếu chưa có
     if (!advanceData[user.id]) {
       setAdvanceData((prev) => ({
         ...prev,
@@ -717,13 +717,13 @@ function InputWorkDay() {
       }));
     }
 
-    // Initialize original salary data from current state
+    // Khởi tạo dữ liệu lương gốc từ state hiện tại
     setOriginalSalaryData((prev) => ({
       ...prev,
       [user.id]: { ...(salaryData[user.id] || {}) },
     }));
 
-    // Open modal for editing
+    // Mở modal để chỉnh sửa
     setEditingUserId(user.id);
     setShowModal(true);
     setShowDropdown(false);
@@ -757,18 +757,18 @@ function InputWorkDay() {
       return;
     }
 
-    // Check if there's any data to save
+    // Kiểm tra có dữ liệu nào cần lưu không
     const currentTimesheetData = timesheetData[editingUserId] || {};
     const employeeUserData = salaryData[editingUserId] || {};
     const employeeAdvanceData = advanceData[editingUserId] || [];
     const employeeOriginalSalaryData = originalSalaryData[editingUserId] || {};
 
-    // Check if timesheet has any changes
+    // Kiểm tra dữ liệu chấm công có thay đổi không
     const hasTimesheetChanges = Object.values(currentTimesheetData).some(
       (dayData) => dayData.changed
     );
 
-    // Check if salary has any changes
+    // Kiểm tra dữ liệu lương có thay đổi không
     let hasSalaryChanges = false;
     for (const component of salaryComponents) {
       const currentAmount =
@@ -790,7 +790,7 @@ function InputWorkDay() {
       }
     }
 
-    // Check if advance has any changes
+    // Kiểm tra dữ liệu tạm ứng có thay đổi không
     let hasAdvanceChanges = false;
     const employeeOriginalAdvanceData = originalAdvanceData[editingUserId] || [];
     for (const advance of employeeAdvanceData) {
@@ -811,7 +811,7 @@ function InputWorkDay() {
       }
     }
 
-    // If no data to save, just close modal
+    // Nếu không có dữ liệu cần lưu thì đóng modal
     if (!hasTimesheetChanges && !hasSalaryChanges && !hasAdvanceChanges) {
       setShowModal(false);
       setEditingUserId(null);
@@ -826,29 +826,29 @@ function InputWorkDay() {
       const newTimesheetItems = [];
       const updateTimesheetItems = [];
 
-      // Get cached data for this user
+      // Lấy dữ liệu cache của user này
       const cachedTimesheetData = cachedData.timesheet[editingUserId] || {};
 
-      // Collect only changed timesheet entries from currentTimesheetData
-      // Separate into new (not in cached) and update (in cached) items
+      // Chỉ gom các dòng chấm công đã thay đổi từ currentTimesheetData
+      // Tách thành dòng mới (chưa có trong cache) và dòng cập nhật (đã có trong cache)
       Object.keys(currentTimesheetData).forEach((dateKey) => {
         const dayData = currentTimesheetData[dateKey];
 
-        // Skip if not marked as changed
+        // Bỏ qua nếu chưa được đánh dấu thay đổi
         if (!dayData.changed) {
           return;
         }
 
-        // Check if date is in the future
+        // Kiểm tra ngày có nằm trong tương lai không
         const [year, month, day] = dateKey.split("-").map(Number);
         const dateObj = new Date(year, month - 1, day);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         if (dateObj > today) {
-          return; // Skip future dates
+          return; // Bỏ qua ngày trong tương lai
         }
 
-        // If changed: true, post regardless of data values (including 0,0,0)
+        // Nếu changed = true thì lưu dù giá trị là 0,0,0
         const standardWorkDays =
           dayData.standardWorkDays !== undefined ? dayData.standardWorkDays : 0;
         const overtimeHours =
@@ -861,17 +861,17 @@ function InputWorkDay() {
           note: dayData.note || "",
         };
 
-        // Separate into new or update items based on cached data
+        // Tách thành dòng mới hoặc cập nhật dựa trên dữ liệu cache
         if (cachedTimesheetData[dateKey]) {
-          // Has data in cached -> this is an update
+          // Có dữ liệu trong cache -> đây là bản cập nhật
           updateTimesheetItems.push(timesheetItem);
         } else {
-          // No data in cached -> this is a new entry
+          // Không có dữ liệu trong cache -> đây là dòng mới
           newTimesheetItems.push(timesheetItem);
         }
       });
 
-      // Save new timesheet entries in bulk
+      // Lưu hàng loạt các dòng chấm công mới
       if (newTimesheetItems.length > 0) {
         try {
           await payrollAPI.saveTimesheetBulk(editingUserId, newTimesheetItems);
@@ -888,7 +888,7 @@ function InputWorkDay() {
         }
       }
 
-      // Update existing timesheet entries individually
+      // Cập nhật từng dòng chấm công đã có
       for (const updateItem of updateTimesheetItems) {
         try {
           const updateData = {
@@ -910,7 +910,7 @@ function InputWorkDay() {
         }
       }
 
-      // Save salary components
+      // Lưu các thành phần lương
       let salarySaveCount = 0;
       let salaryFailCount = 0;
       const salaryErrors = [];
@@ -920,7 +920,7 @@ function InputWorkDay() {
       const employeeSalaryStructureIds = salaryStructureIds[editingUserId] || {};
 
       for (const component of salaryComponents) {
-        // Get amount or default to 0 if not provided
+        // Lấy số tiền, mặc định 0 nếu không nhập
         const componentAmount = employeeUserData[component.id];
         const currentAmount =
           componentAmount && componentAmount !== ""
@@ -932,12 +932,12 @@ function InputWorkDay() {
             ? employeeOriginalSalaryData[component.id]
             : 0;
 
-        // Skip if amount is 0 or empty and no original value
+        // Bỏ qua nếu số tiền = 0/rỗng và trước đó cũng không có dữ liệu
         if (currentAmount === 0 && originalAmount === 0) {
           continue;
         }
 
-        // Skip if no changes
+        // Bỏ qua nếu không có thay đổi
         if (currentAmount === originalAmount) {
           continue;
         }
@@ -947,14 +947,14 @@ function InputWorkDay() {
         };
 
         try {
-          // If has original value, use PUT to update
+          // Nếu đã có dữ liệu gốc thì dùng PUT để cập nhật
           if (originalAmount !== 0) {
             const salaryStructureId = employeeSalaryStructureIds[component.id];
             if (salaryStructureId) {
               await payrollAPI.updateSalaryComponent(salaryStructureId, salaryPayload);
             }
           }
-          // If no original value, use POST to create
+          // Nếu chưa có dữ liệu gốc thì dùng POST để tạo mới
           else {
             const postPayload = {
               id: editingUserId,
@@ -976,7 +976,7 @@ function InputWorkDay() {
         }
       }
 
-      // Save advance payments
+      // Lưu các khoản tạm ứng
       let advanceSaveCount = 0;
       let advanceFailCount = 0;
       const advanceErrors = [];
@@ -984,9 +984,9 @@ function InputWorkDay() {
       const employeeAdvanceData = advanceData[editingUserId] || [];
       const employeeOriginalAdvanceData = originalAdvanceData[editingUserId] || [];
 
-      // Helper function to detect if an advance entry has changed
+      // Hàm hỗ trợ kiểm tra một dòng tạm ứng có thay đổi không
       const hasAdvanceChanged = (currentEntry, originalEntry) => {
-        if (!originalEntry) return true; // New entry
+        if (!originalEntry) return true; // Dòng mới
         return (
           currentEntry.date !== originalEntry.date ||
           currentEntry.amount !== originalEntry.amount ||
@@ -995,17 +995,17 @@ function InputWorkDay() {
       };
 
       for (const advance of employeeAdvanceData) {
-        // Only save entries that have amount (date and note can be empty)
+        // Chỉ lưu các dòng có số tiền (ngày và ghi chú có thể để trống)
         if (advance.amount && advance.amount !== "") {
-          // Find original entry to compare
+          // Tìm dòng gốc để so sánh
           const originalEntry = employeeOriginalAdvanceData.find(
             (orig) => orig.id === advance.id
           );
 
-          // Check if entry has changed
+          // Kiểm tra dòng có thay đổi không
           const changed = hasAdvanceChanged(advance, originalEntry);
 
-          // Skip if no changes
+          // Bỏ qua nếu không có thay đổi
           if (!changed && advance.id) {
             continue;
           }
@@ -1018,11 +1018,11 @@ function InputWorkDay() {
           };
 
           try {
-            // If entry has ID and changed, use PUT to update
+            // Nếu dòng có ID và đã thay đổi thì dùng PUT để cập nhật
             if (advance.id && changed) {
               await payrollAPI.updateAdvancePayment(advance.id, advancePayload);
             }
-            // If entry doesn't have ID, use POST to create
+            // Nếu dòng chưa có ID thì dùng POST để tạo mới
             else if (!advance.id) {
               await payrollAPI.saveAdvancePayment(advancePayload);
             }
@@ -1039,7 +1039,7 @@ function InputWorkDay() {
         }
       }
 
-      // Show combined results
+      // Hiển thị kết quả tổng hợp
       let message = "";
       const hasSuccessfulSaves =
         successCount > 0 || salarySaveCount > 0 || advanceSaveCount > 0;
@@ -1047,28 +1047,28 @@ function InputWorkDay() {
         failureCount > 0 || salaryFailCount > 0 || advanceFailCount > 0;
 
       if (hasSuccessfulSaves && !hasFailures) {
-        // All saves successful
+        // Tất cả thao tác lưu đều thành công
         message = "Cập nhật thành công";
         showToast(message, "success");
         
-        // Update original advance data to match current state
+        // Cập nhật dữ liệu tạm ứng gốc theo state hiện tại
         setOriginalAdvanceData((prev) => ({
           ...prev,
           [editingUserId]: [...(advanceData[editingUserId] || [])],
         }));
 
-        // Update original salary data to match current state
+        // Cập nhật dữ liệu lương gốc theo state hiện tại
         setOriginalSalaryData((prev) => ({
           ...prev,
           [editingUserId]: { ...(salaryData[editingUserId] || {}) },
         }));
         
-        // Close modal after success
+        // Đóng modal sau khi lưu thành công
         setShowModal(false);
         setEditingUserId(null);
         setHasChanges(false); // Reset flag after successful save
       } else if (hasSuccessfulSaves && hasFailures) {
-        // Some saves succeeded, some failed
+        // Một phần lưu thành công, một phần thất bại
         if (successCount > 0) {
           message += `Lưu thành công: ${successCount} dòng công`;
         }
@@ -1101,7 +1101,7 @@ function InputWorkDay() {
 
         showToast(message, "warning");
       } else if (hasFailures) {
-        // All saves failed
+        // Tất cả thao tác lưu đều thất bại
         if (failureCount > 0) {
           message += `Lưu thất bại: ${failureCount} dòng công`;
         }
@@ -1130,11 +1130,11 @@ function InputWorkDay() {
     }
   };
 
-  // Check if there are any unsaved changes
+  // Kiểm tra có thay đổi nào chưa lưu hay không
   const hasUnsavedChanges = () => {
     if (!editingUserId) return false;
 
-    // Check timesheet changes
+    // Kiểm tra thay đổi ở dữ liệu chấm công
     const timesheetForUser = timesheetData[editingUserId] || {};
     for (const dateKey in timesheetForUser) {
       if (timesheetForUser[dateKey].changed === true) {
@@ -1155,7 +1155,7 @@ function InputWorkDay() {
     return false;
   };
 
-  // Handle modal close with unsaved changes check
+  // Xử lý đóng modal khi cần kiểm tra thay đổi chưa lưu
   const handleCloseModal = () => {
     if (hasChanges) {
       // Show custom confirmation modal
@@ -1168,7 +1168,7 @@ function InputWorkDay() {
     }
   };
 
-  // Handle confirmation modal actions
+  // Xử lý hành động trong modal xác nhận
   const handleConfirmationYes = () => {
     setShowConfirmationModal(false);
     if (confirmationAction === "close") {
@@ -1650,12 +1650,12 @@ function InputWorkDay() {
                     <button
                       className="employee-card-button"
                       onClick={() => {
-                        // Update user update order - move to front
+                        // Cập nhật thứ tự chỉnh sửa user - đưa lên đầu
                         const newOrder = userUpdateOrder.filter((id) => id !== userId);
                         newOrder.unshift(userId);
                         setUserUpdateOrder(newOrder);
 
-                        // Initialize original salary data from current state
+                        // Khởi tạo dữ liệu lương gốc từ state hiện tại
                         setOriginalSalaryData((prev) => ({
                           ...prev,
                           [userId]: { ...(salaryData[userId] || {}) },

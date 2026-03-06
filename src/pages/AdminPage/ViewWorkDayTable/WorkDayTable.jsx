@@ -3,6 +3,7 @@ import "./WorkDayTable.css";
 import { usePayroll } from "../../../presentation/hooks/usePayroll";
 import { useAuth } from "../../../presentation/hooks/useAuth";
 import { useUser } from "../../../presentation/hooks/useUser";
+import { useToast } from "../../../hooks/useToast";
 import { userAPI, payrollAPI } from "../../../services/api";
 import { USER_ROLES } from "../../../config/constants";
 import { 
@@ -14,11 +15,12 @@ import {
 import { PERMISSIONS } from "../../../config/constants";
 
 function WorkDayTable() {
-  // Initialize with current month
+  // Khởi tạo theo tháng hiện tại
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonthNum = currentDate.getMonth() + 1; // 1-12
 
+  const { showToast } = useToast();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonthNum);
   const [currentUser, setCurrentUser] = useState(null);
@@ -37,17 +39,17 @@ function WorkDayTable() {
   const { getCurrentUser } = useAuth();
   const { loadProfile } = useUser();
 
-  // Helper function to check if user is employee (only has read permission, no write)
+  // Hàm hỗ trợ kiểm tra người dùng là nhân viên (chỉ có quyền đọc, không có quyền ghi)
   const isEmployeeRole = () => {
     return !hasPermission(PERMISSIONS.HR_TIMEKEEPING_WRITE);
   };
 
-  // Helper function to check if user is HR or Admin (has write permission)
+  // Hàm hỗ trợ kiểm tra người dùng là HR hoặc Admin (có quyền ghi)
   const isHROrAdmin = () => {
     return hasPermission(PERMISSIONS.HR_TIMEKEEPING_WRITE) || hasPermission(PERMISSIONS.SYSTEM_USERS_WRITE);
   };
 
-  // Create date from selected year and month
+  // Tạo ngày từ năm và tháng đã chọn
   const selectedDate = new Date(selectedYear, selectedMonth - 1);
 
   const monthLabel = selectedDate.toLocaleString("vi-VN", {
@@ -55,18 +57,18 @@ function WorkDayTable() {
     year: "numeric",
   });
 
-  // Calculate actual days in selected month
+  // Tính số ngày thực tế trong tháng đã chọn
   const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
   const days = Array.from({ length: daysInMonth }, (_, index) => index + 1);
 
-  // Generate year options (from 2020 to current year)
+  // Tạo danh sách năm (từ 2020 đến năm hiện tại)
   const startYear = 2020;
   const years = Array.from(
     { length: currentYear - startYear + 1 },
     (_, i) => startYear + i,
   );
 
-  // Months array
+  // Danh sách tháng
   const months = [
     { value: 1, label: "Tháng 1" },
     { value: 2, label: "Tháng 2" },
@@ -82,33 +84,39 @@ function WorkDayTable() {
     { value: 12, label: "Tháng 12" },
   ];
 
-  // Get current user and load profile on component mount
+  // Lấy người dùng hiện tại và tải hồ sơ khi component mount
   useEffect(() => {
     const loadUserData = async () => {
       try {
         const user = getCurrentUser();
-        setCurrentUser(user);
-
-        if (user) {
-          const profile = await loadProfile();
-          setUserProfile(profile);
+        if (!user) {
+       
+          // Token invalid/expired - redirect ngay, toast hiện sau
+          sessionStorage.setItem('auth-expired-toast', '1');
+          localStorage.clear();
+          window.location.href = '/';
+          return;
         }
+        
+        setCurrentUser(user);
+        const profile = await loadProfile();
+        setUserProfile(profile);
       } catch (error) {
-        // Error loading user data
+       
       }
     };
 
     loadUserData();
   }, []);
 
-  // Fetch all employees (only on component mount and only for admin)
+  // Lấy toàn bộ nhân viên (khi mount và chỉ áp dụng cho admin/HR)
   useEffect(() => {
     const loadAllEmployees = async () => {
       try {
         let employeeList = [];
 
         if (isEmployeeRole()) {
-          // Employee: only fetch their own data
+          // Nhân viên: chỉ lấy dữ liệu của chính mình
           if (currentUser) {
             employeeList = [
               {
@@ -127,7 +135,7 @@ function WorkDayTable() {
             ];
           }
         } else {
-          // Admin/HR: fetch all employees
+          // Admin/HR: lấy toàn bộ nhân viên
           employeeList = await userAPI.getAllUsers();
         }
 
@@ -143,19 +151,19 @@ function WorkDayTable() {
         }));
         setEmployees(formattedEmployees);
       } catch (error) {
-        // Error fetching employees
+        // Lỗi khi tải danh sách nhân viên
       }
     };
 
     loadAllEmployees();
   }, [userProfile]);
 
-  // Helper function to fetch salaries
+  // Hàm hỗ trợ lấy dữ liệu lương
   const fetchSalariesForMonth = async (month, year, empList = null) => {
     const employeeList = empList || employees;
-    // Check if user is employee
+    // Kiểm tra người dùng có phải nhân viên không
     if (isEmployeeRole()) {
-      // Employee: fetch only their own salary
+      // Nhân viên: chỉ lấy lương của chính mình
       if (!currentUser) return;
 
       try {
@@ -169,7 +177,7 @@ function WorkDayTable() {
 
         const salariesMap = {};
 
-        // Handle both single object and array response
+        // Hỗ trợ cả response dạng object đơn và mảng
         const salaryData = Array.isArray(response) ? response[0] : response;
         if (salaryData) {
           salariesMap[currentUser.id] = {
@@ -185,12 +193,12 @@ function WorkDayTable() {
 
         setEmployeeSalaries(salariesMap);
       } catch (error) {
-        // Error fetching salary
+        // Lỗi khi tải dữ liệu lương
       } finally {
         setLoadingSalaries(false);
       }
     } else {
-      // Admin: fetch all employees' salaries
+      // Admin/HR: lấy lương của toàn bộ nhân viên
       try {
         setLoadingSalaries(true);
 
@@ -214,15 +222,15 @@ function WorkDayTable() {
 
         setEmployeeSalaries(salariesMap);
       } catch (error) {
-        // Error fetching all salaries
+        // Lỗi khi tải toàn bộ dữ liệu lương
       } finally {
         setLoadingSalaries(false);
       }
     }
   };
 
-  // Fetch salaries when employees list changes (initial load)
-  // Removed: Data only fetches when user clicks "Tra cứu" button
+  // Trước đây từng tự động tải lương khi danh sách nhân viên đổi (lần đầu)
+  // Hiện tại đã bỏ: dữ liệu chỉ tải khi người dùng nhấn nút "Tra cứu"
 
   const handleYearChange = (e) => {
     const newYear = parseInt(e.target.value);
@@ -230,7 +238,7 @@ function WorkDayTable() {
     setEmployeeSalaries({});
     setHasSearched(false);
 
-    // If selected year is current year, ensure month is not in future
+    // Nếu năm chọn là năm hiện tại, đảm bảo tháng không vượt quá tháng hiện tại
     if (newYear === currentYear && selectedMonth > currentMonthNum) {
       setSelectedMonth(currentMonthNum);
     }
@@ -244,7 +252,7 @@ function WorkDayTable() {
 
   const handleSearch = async () => {
     setHasSearched(true);
-    // Only admin/HR needs to refresh employees list
+    // Chỉ admin/HR cần làm mới danh sách nhân viên
     if (!isEmployeeRole()) {
       try {
         const employeeList = await userAPI.getAllUsers();
@@ -260,14 +268,14 @@ function WorkDayTable() {
         }));
         setEmployees(formattedEmployees);
       } catch (error) {
-        // Error fetching employees
+        // Lỗi khi tải danh sách nhân viên
       }
     }
-    // Fetch salaries with updated employees
+    // Tải dữ liệu lương với danh sách nhân viên đã cập nhật
     await fetchSalariesForMonth(selectedMonth, selectedYear);
   };
 
-  // Check if a month should be disabled
+  // Kiểm tra tháng có cần bị vô hiệu hóa không
   const isMonthDisabled = (monthValue) => {
     return selectedYear === currentYear && monthValue > currentMonthNum;
   };
@@ -290,7 +298,7 @@ function WorkDayTable() {
     }
   };
 
-  // Memoized table header - doesn't change, so it won't re-render
+  // Memo hóa phần header của bảng - không đổi nên tránh re-render
   const tableHeader = useMemo(
     () => (
       <div className="div-header">

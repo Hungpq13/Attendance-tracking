@@ -35,18 +35,21 @@ export const getUserFromToken = () => {
     // Lấy token từ localStorage
     const token = localStorage.getItem(STORAGE_TOKEN);
     if (!token) {
+      console.warn('⚠️ getUserFromToken: No token in localStorage');
       return null;
     }
 
     // Decode token
     const decoded = decodeToken(token);
     if (!decoded) {
+      console.warn('⚠️ getUserFromToken: Token decode failed - invalid format');
       return null;
     }
 
     // Kiểm tra token có hết hạn không
     const currentTime = Math.floor(Date.now() / 1000);
     if (decoded.exp && decoded.exp < currentTime) {
+      console.warn('⚠️ getUserFromToken: Token expired');
       localStorage.removeItem(STORAGE_TOKEN);
       return null;
     }
@@ -61,6 +64,7 @@ export const getUserFromToken = () => {
       decoded.iat
     );
   } catch (error) {
+    console.error('❌ getUserFromToken error:', error);
     return null;
   }
 };
@@ -154,7 +158,7 @@ export const handleForceLogout = () => {
   // Nếu chưa có token thì không cần logout
   if (!localStorage.getItem(STORAGE_TOKEN)) return;
 
-  console.warn('⚠️ Phiên đăng nhập hết hạn - Force logout');
+  
 
   // 1. XÓA SẠCH TẤT CẢ DỮ LIỆU AUTH
   clearAuthStorage();

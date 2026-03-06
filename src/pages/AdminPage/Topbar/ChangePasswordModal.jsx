@@ -65,19 +65,19 @@ function ChangePasswordModal({ isOpen, onClose }) {
   const navigate = useNavigate();
 
   const handleChangePassword = async () => {
-    // Check if using temp token (initial password change)
+    // Kiểm tra có đang dùng temp token (đổi mật khẩu lần đầu) không
     const tempToken = getTempToken();
     const isInitialPasswordChange = !!tempToken;
 
-    // Validate inputs
+    // Kiểm tra dữ liệu nhập
     if (isInitialPasswordChange) {
-      // For initial password change, only need new password
+      // Với đổi mật khẩu lần đầu, chỉ cần mật khẩu mới
       if (!newPassword || !confirmPassword) {
         showToast("Vui lòng nhập đầy đủ mật khẩu mới.", "warning");
         return;
       }
     } else {
-      // For regular password change, need current password
+      // Với đổi mật khẩu thông thường, cần mật khẩu hiện tại
       if (!currentPassword || !newPassword || !confirmPassword) {
         showToast("Vui lòng nhập đầy đủ mật khẩu.", "warning");
         return;
@@ -91,11 +91,11 @@ function ChangePasswordModal({ isOpen, onClose }) {
 
     try {
       if (isInitialPasswordChange) {
-        // Change initial password using temp token
+        // Đổi mật khẩu lần đầu bằng temp token
         const result = await changeInitialPassword(newPassword, confirmPassword);
         showToast(result.message || "Đổi mật khẩu thành công!", "success");
         
-        // Reset form
+        // Đặt lại form
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
@@ -103,18 +103,18 @@ function ChangePasswordModal({ isOpen, onClose }) {
         setShowNewPassword(false);
         setShowConfirmPassword(false);
         
-        // Close modal and navigate to login
+        // Đóng modal và chuyển về trang đăng nhập
       
           // onClose();
           // navigate('/', { replace: true });
           window.location.reload();
       
       } else {
-        // Regular password change
+        // Đổi mật khẩu thông thường
         await changePassword(currentPassword, newPassword, confirmPassword);
         showToast("Đổi mật khẩu thành công!", "success");
         
-        // Reset form
+        // Đặt lại form
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
@@ -122,7 +122,7 @@ function ChangePasswordModal({ isOpen, onClose }) {
         setShowNewPassword(false);
         setShowConfirmPassword(false);
         
-        // Close modal and navigate to main
+        // Đóng modal và chuyển đến trang chính
         setTimeout(() => {
           onClose();
           navigate('/main', { replace: true });

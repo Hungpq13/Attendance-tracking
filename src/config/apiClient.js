@@ -29,11 +29,17 @@ export const apiClient = async (url, options = {}) => {
 
     // Nếu 401 (token hết hạn) hoặc 403 (forbidden):
     if (response.status === 401 || response.status === 403) {
-      console.warn(`⚠️ Status ${response.status} - Redirecting to login`);
-      sessionStorage.setItem('auth-expired-toast', '1');
-      clearAuthStorage();
-      window.location.href = '/';
-      return Promise.reject(`Unauthorized - Status ${response.status}`);
+      const token = localStorage.getItem(STORAGE_TOKEN);
+      console.warn(`⚠️ Status ${response.status} - Token error, hasToken: ${!!token}`);
+      // Chỉ redirect nếu có token (tránh redirect khi chưa login)
+      if (token) {
+        console.warn('⚠️ Clearing storage and redirecting to login...');
+        // Set flag để hiện toast SAU KHI redirect
+        sessionStorage.setItem('auth-expired-toast', '1');
+        clearAuthStorage();
+        window.location.href = '/';
+      }
+      throw new Error(`Unauthorized - Status ${response.status}`);
     }
 
     return response;

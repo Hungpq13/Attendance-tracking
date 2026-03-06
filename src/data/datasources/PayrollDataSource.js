@@ -29,14 +29,30 @@ payrollAxios.interceptors.request.use(
   }
 );
 
-// Thêm response interceptor để handle 401/403
+// Thêm response interceptor để handle 401/403 và token errors
 payrollAxios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      console.warn(`⚠️ Status ${error.response.status} - Redirecting to login`);
+    const errorMessage = error.response?.data?.message || error.message || '';
+    const errorStatus = error.response?.status;
+    const isTokenError = errorMessage.toLowerCase().includes('no user found') || 
+                         errorMessage.toLowerCase().includes('token') ||
+                         errorMessage.toLowerCase().includes('unauthorized') ||
+                         errorMessage.toLowerCase().includes('no access');
+    
+    console.log('🔍 PayrollDataSource Error:', {
+      status: errorStatus,
+      message: errorMessage,
+      isTokenError,
+      hasToken: !!localStorage.getItem('token')
+    });
+    
+    // ⚠️ Redirect khi gặp token errors (idle timeout, revoked, expired)
+    if (errorStatus === 401 || errorStatus === 403 || isTokenError) {
+      console.warn('⚠️ Token invalid/expired - clearing storage and redirecting...');
+      // Set flag để hiện toast SAU KHI redirect
       sessionStorage.setItem('auth-expired-toast', '1');
-      clearAuthStorage(); // Xóa token và user info
+      clearAuthStorage();
       window.location.href = '/';
     }
     return Promise.reject(error);

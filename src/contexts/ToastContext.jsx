@@ -1,17 +1,19 @@
-import { createContext, useCallback, useState } from 'react';
+import { createContext, useCallback, useState, useRef } from 'react';
 
 export const ToastContext = createContext();
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
+  const idCounterRef = useRef(0); // Counter to ensure unique IDs
 
   const showToast = useCallback((message, type = 'success', duration = 3000) => {
-    const id = Date.now();
+    // Dùng counter + timestamp cho việc bảo mật id
+    const id = `${Date.now()}-${++idCounterRef.current}`;
     const newToast = { id, message, type };
     
     setToasts(prev => [...prev, newToast]);
     
-    // Auto remove after duration
+    // Auto xóa sau duration
     if (duration > 0) {
       setTimeout(() => {
         setToasts(prev => prev.filter(toast => toast.id !== id));

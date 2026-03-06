@@ -28,7 +28,10 @@ export const useUser = () => {
       // Lấy user ID từ token
       const user = getUserFromToken();
       if (!user) {
-        throw new Error('Không tìm thấy thông tin người dùng');
+    
+        localStorage.clear();
+        window.location.href = '/';
+        throw new Error('Token invalid - redirecting to login');
       }
 
       // Gọi use case lấy hồ sơ
@@ -36,6 +39,7 @@ export const useUser = () => {
       setProfile(data);
 
       return data;
+    } catch (err) {
       setError(err.message || 'Lấy hồ sơ thất bại');
       throw err;
     } finally {

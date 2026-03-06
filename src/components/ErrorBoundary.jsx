@@ -20,7 +20,7 @@ class ErrorBoundary extends Component {
       errorInfo: errorInfo,
     });
 
-    // Store error info in sessionStorage for error page to access
+    // Lưu trữ thông tin lỗi vào sessionStorage để hiển thị trên trang lỗi
     sessionStorage.setItem('lastError', JSON.stringify({
       code: '500',
       message: error?.message || 'Có lỗi xảy ra trong ứng dụng',

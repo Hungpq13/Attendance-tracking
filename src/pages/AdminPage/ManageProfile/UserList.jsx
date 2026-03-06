@@ -27,19 +27,19 @@ function UserList({ onPageChange }) {
   const tableWrapperRef = useRef(null);
   const filterMenuRef = useRef(null);
 
-  // Fetch users from API
+  // Lấy danh sách người dùng từ API
   useEffect(() => { 
     fetchUsers();
   }, []);
 
-  // Scroll to top of list when page changes
+  // Cuộn lên đầu danh sách khi đổi trang
   useEffect(() => {
     if (tableWrapperRef.current) {
       tableWrapperRef.current.scrollTop = 0;
     }
   }, [currentPage]);
 
-  // Close filter menu when clicking outside
+  // Đóng menu lọc khi nhấn ra ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
@@ -53,7 +53,7 @@ function UserList({ onPageChange }) {
     }
   }, [showFilterMenu]);
 
-  // Fetch user profile when modal opens
+  // Lấy hồ sơ người dùng khi mở modal
   useEffect(() => {
     if (showEditModal && editingUser && !isEditingMode) {
       handleStartEditing();
@@ -74,36 +74,36 @@ function UserList({ onPageChange }) {
     }
   };
 
-  // Filter users based on search term and status
+  // Lọc người dùng theo từ khóa tìm kiếm và trạng thái
   const filteredUsers = users.filter(user => {
-    // Search filter
+    // Điều kiện lọc theo từ khóa
     const matchesSearch = 
       user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Status filter - show based on checked boxes
+    // Điều kiện lọc trạng thái theo các ô đã chọn
     const matchesStatus = 
-      (filterActive && filterInactive) || // Both checked: show all
-      (filterActive && user.isActive) ||  // Only active checked
-      (filterInactive && !user.isActive); // Only inactive checked
+      (filterActive && filterInactive) || // Chọn cả hai: hiển thị tất cả
+      (filterActive && user.isActive) ||  // Chỉ chọn hoạt động
+      (filterInactive && !user.isActive); // Chỉ chọn vô hiệu hóa
     
     return matchesSearch && matchesStatus;
   });
 
-  // Calculate pagination
+  // Tính phân trang
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
 
-  // Reset to page 1 when search term changes
+  // Đặt lại về trang 1 khi từ khóa tìm kiếm thay đổi
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
   };
 
-  // Handle checkbox filter changes
+  // Xử lý thay đổi bộ lọc checkbox
   const handleFilterActiveChange = (e) => {
     setFilterActive(e.target.checked);
     setCurrentPage(1);
@@ -130,10 +130,10 @@ function UserList({ onPageChange }) {
       setIsDeactivating(true);
       
       if (lockActionType === 'restore') {
-        // User is inactive (green lock) - call restore API
+        // Người dùng đang vô hiệu hóa (khóa xanh) - gọi API khôi phục
         await userAPI.restoreUser(selectedUserId);
         
-        // Update user's isActive status
+        // Cập nhật trạng thái isActive của người dùng
         const updatedUsers = users.map(u => 
           u.id === selectedUserId ? { ...u, isActive: true } : u
         );
@@ -141,10 +141,10 @@ function UserList({ onPageChange }) {
         
         showToast('Khôi phục người dùng thành công', 'success');
       } else if (lockActionType === 'deactivate') {
-        // User is active (red lock) - call delete API
+        // Người dùng đang hoạt động (khóa đỏ) - gọi API vô hiệu hóa
         await userAPI.deactivateUser(selectedUserId);
         
-        // Update user's isActive status
+        // Cập nhật trạng thái isActive của người dùng
         const updatedUsers = users.map(u => 
           u.id === selectedUserId ? { ...u, isActive: false } : u
         );
@@ -169,7 +169,7 @@ function UserList({ onPageChange }) {
     setLockActionType(null);
   };
 
-  // Helper function to format phone number (show first 3 digits, hide rest with *)
+  // Hàm hỗ trợ định dạng số điện thoại (hiển thị 3 số đầu, ẩn phần còn lại bằng *)
   const formatPhoneNumber = (phone) => {
     if (!phone) return '';
     const phoneStr = phone.toString();
@@ -179,26 +179,26 @@ function UserList({ onPageChange }) {
     return firstThree + rest;
   };
 
-  // Helper function to format date from API to YYYY-MM-DD
+  // Hàm hỗ trợ định dạng ngày từ API về YYYY-MM-DD
   const formatDateFromAPI = (dateValue) => {
     if (!dateValue) return '';
     
     const value = dateValue.toString().trim();
     
-    // Trường hợp format: YYYY-MM-DDTHH:mm:ss
+    // Trường hợp định dạng: YYYY-MM-DDTHH:mm:ss
     const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (isoMatch) {
       return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
     }
     
-    // Trường hợp format lộn xộn như: 30T00:00:00/01/2026 - extract dd/mm/yyyy
+    // Trường hợp định dạng lộn xộn như: 30T00:00:00/01/2026 - tách dd/mm/yyyy
     const mixedMatch = value.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
     if (mixedMatch) {
       const [, day, month, year] = mixedMatch;
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     }
     
-    // Trường hợp format: dd/mm/yyyy
+    // Trường hợp định dạng: dd/mm/yyyy
     if (value.includes('/')) {
       const parts = value.split('/');
       if (parts.length === 3) {
@@ -207,7 +207,7 @@ function UserList({ onPageChange }) {
       }
     }
     
-    // Nếu đã là YYYY-MM-DD, return as-is
+    // Nếu đã là YYYY-MM-DD thì giữ nguyên
     if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
       return value;
     }
@@ -221,12 +221,12 @@ function UserList({ onPageChange }) {
     try {
       const date = new Date(dateTimeString);
       
-      // Get time components
+      // Lấy thành phần thời gian
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
       const seconds = String(date.getSeconds()).padStart(2, '0');
       
-      // Get date components
+      // Lấy thành phần ngày tháng
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
@@ -238,7 +238,7 @@ function UserList({ onPageChange }) {
   };
 
   const handleEditUser = (user) => {
-    // Just open modal in view mode with basic user data
+    // Chỉ mở modal ở chế độ xem với dữ liệu cơ bản của người dùng
     setEditingUser({ ...user });
     setIsEditingMode(false);
     setShowEditModal(true);
@@ -248,21 +248,21 @@ function UserList({ onPageChange }) {
     if (!editingUser) return;
     try {
       setIsLoadingProfile(true);
-      // Fetch full user profile from /userProfile/{id}
+      // Lấy đầy đủ hồ sơ người dùng từ /userProfile/{id}
       const profileData = await userAPI.getUserProfile(editingUser.id);
       const userData = profileData.data || profileData;
       
-      // Format date from API to YYYY-MM-DD format
+      // Định dạng ngày từ API về YYYY-MM-DD
       const formattedDob = formatDateFromAPI(userData.dateOfBirth || userData.birthDate || userData.dob || '');
       
-      // Map API response fields (handle different field names)
+      // Ánh xạ trường dữ liệu từ API (hỗ trợ nhiều tên trường)
       const mappedUser = {
         ...editingUser,
         ...userData,
         fullName: userData.fullName || editingUser.fullName,
         email: userData.email || editingUser.email,
-        phone: userData.phoneNumber || userData.phone || editingUser.phone || '', // API uses phoneNumber
-        dateOfBirth: formattedDob, // Use formatted date
+        phone: userData.phoneNumber || userData.phone || editingUser.phone || '', // API dùng phoneNumber
+        dateOfBirth: formattedDob, // Dùng ngày đã định dạng
         gender: userData.gender || editingUser.gender || ''
       };
       
@@ -275,17 +275,17 @@ function UserList({ onPageChange }) {
     }
   };
 
-  // Enter edit mode (after data is loaded)
+  // Vào chế độ chỉnh sửa (sau khi tải xong dữ liệu)
   const handleEnterEditMode = () => {
     setIsEditingMode(true);
   };
 
-  // Go to first page
+  // Về trang đầu
   const goToFirstPage = () => {
     setCurrentPage(1);
   };
 
-  // Go to last page
+  // Về trang cuối
   const goToLastPage = () => {
     setCurrentPage(totalPages);
   };
@@ -303,23 +303,23 @@ function UserList({ onPageChange }) {
     try {
       setIsSavingEdit(true);
       
-      // Format date for API (YYYY-MM-DD -> YYYY-MM-DDTHH:mm:ss)
+      // Định dạng ngày cho API (YYYY-MM-DD -> YYYY-MM-DDTHH:mm:ss)
       let formattedDateOfBirth = editingUser.dateOfBirth;
       if (formattedDateOfBirth && formattedDateOfBirth.length === 10) {
         formattedDateOfBirth = formattedDateOfBirth + 'T00:00:00';
       }
       
-      // Call API to update profile via /userProfile/{id}
+      // Gọi API cập nhật hồ sơ qua /userProfile/{id}
       await userAPI.updateUserProfile(editingUser.id, {
         fullName: editingUser.fullName,
         email: editingUser.email,
-        phoneNumber: editingUser.phone, // API expects phoneNumber
+        phoneNumber: editingUser.phone, // API yêu cầu phoneNumber
         dateOfBirth: formattedDateOfBirth,
         gender: editingUser.gender,
-        avatarUrl: editingUser.avatarUrl || editingUser.avatar // Preserve avatar URL
+        avatarUrl: editingUser.avatarUrl || editingUser.avatar // Giữ nguyên URL avatar
       });
       
-      // Update local state
+      // Cập nhật state cục bộ
       const updatedUsers = users.map(u => 
         u.id === editingUser.id ? editingUser : u
       );
@@ -338,13 +338,13 @@ function UserList({ onPageChange }) {
 
   const handleCancelEdit = () => {
     if (isEditingMode) {
-      // In edit mode: Just restore original values and exit edit mode, keep modal open
+      // Trong chế độ chỉnh sửa: khôi phục giá trị gốc và thoát chế độ chỉnh sửa, giữ modal mở
       if (originalEditingUser) {
         setEditingUser(originalEditingUser);
       }
       setIsEditingMode(false);
     } else {
-      // In view mode: Close modal and clear data
+      // Trong chế độ xem: đóng modal và xóa dữ liệu
       setShowEditModal(false);
       setEditingUser(null);
       setOriginalEditingUser(null);
@@ -367,7 +367,7 @@ function UserList({ onPageChange }) {
         <div className="user-list-controls">
           <input
             type="text"
-            placeholder="Tìm kiếm theo tên, username hoặc email..."
+            placeholder="Tìm kiếm theo tên, tên đăng nhập hoặc email..."
             className="user-search-input"
             value={searchTerm}
             onChange={handleSearchChange}
@@ -536,7 +536,7 @@ function UserList({ onPageChange }) {
         </>
       )}
       
-      {/* Lock Toggle Confirm Modal */}
+      {/* Modal xác nhận vô hiệu hóa/khôi phục */}
       {showConfirmModal && lockActionType && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -566,7 +566,7 @@ function UserList({ onPageChange }) {
         </div>
       )}
 
-      {/* Edit User Modal */}
+      {/* Modal chỉnh sửa người dùng */}
       {showEditModal && editingUser && (
         <div className="modal-overlay">
           <div className="modal-content edit-user-modal">

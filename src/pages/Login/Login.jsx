@@ -51,9 +51,9 @@ function Login() {
         }, 500);
       } else if (result?.success) {
         showToast('Đăng nhập thành công!', 'success');
-        setTimeout(() => {
+       
           navigate('/main', { replace: true });
-        }, 1000);
+       
       }
     } catch (error) {
       setIsSubmitting(false);

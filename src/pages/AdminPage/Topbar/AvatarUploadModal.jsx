@@ -33,19 +33,19 @@ function AvatarUploadModal({ isOpen, onClose, onUpload, currentAvatar }) {
     if (files && files[0]) {
       const file = files[0];
       
-      // Validate file type
+      // Kiểm tra loại tệp
       if (!file.type.startsWith('image/')) {
         showToast('Vui lòng chọn tệp hình ảnh', 'error');
         return;
       }
 
-      // Validate file size (max 5MB)
+      // Kiểm tra kích thước tệp (tối đa 5MB)
       if (file.size > 5 * 1024 * 1024) {
         showToast('Kích thước tệp không được vượt quá 5MB', 'error');
         return;
       }
 
-      // Save file and create preview
+      // Lưu tệp và tạo ảnh xem trước
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -81,9 +81,9 @@ function AvatarUploadModal({ isOpen, onClose, onUpload, currentAvatar }) {
     try {
       setUploading(true);
 
-      // Step 1: Upload file and get URL
+      // Bước 1: Tải tệp lên và nhận URL
       const uploadResponse = await userAPI.uploadAvatar(selectedFile);
-      // Extract avatar URL from response (handle both structures)
+      // Lấy URL avatar từ response (hỗ trợ nhiều cấu trúc dữ liệu)
       const avatarUrl = uploadResponse?.url || uploadResponse?.data || uploadResponse?.avatarUrl;
       const message = uploadResponse?.message || 'Tải ảnh lên thành công';
 
@@ -91,7 +91,7 @@ function AvatarUploadModal({ isOpen, onClose, onUpload, currentAvatar }) {
         throw new Error('Không nhận được URL từ server: ' + JSON.stringify(uploadResponse));
       }
 
-      // Step 2: Show temporary avatar and message
+      // Bước 2: Hiển thị avatar mới và thông báo
       showToast(message, 'success');
       await onUpload(avatarUrl);
       onClose();
@@ -126,7 +126,7 @@ function AvatarUploadModal({ isOpen, onClose, onUpload, currentAvatar }) {
           <div className="preview-section">
             {preview && (
               <div className="preview-container">
-                <img src={preview} alt="Preview" className="preview-image" />
+                <img src={preview} alt="Xem trước" className="preview-image" />
               </div>
             )}
           </div>

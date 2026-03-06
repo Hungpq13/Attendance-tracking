@@ -100,8 +100,13 @@ export const hasInputWorkDayAccess = () => {
  */
 export const hasViewWorkDayAccess = () => {
   const user = getUserFromToken();
-  // Nếu user không có permissions, mặc định cho phép xem
-  if (!user || !user.permissions || user.permissions.length === 0) {
+  // Không có user/token thì không có quyền
+  if (!user) {
+    return false;
+  }
+
+  // Nếu user có token nhưng không có permissions, mặc định cho phép xem
+  if (!user.permissions || user.permissions.length === 0) {
     return true;
   }
   return hasPermission(PERMISSIONS.HR_TIMEKEEPING_READ);

@@ -42,7 +42,7 @@ export const ERROR_MESSAGE_TRANSLATIONS = {
   '503': 'Dịch vụ tạm không khả dụng',
 };
 
-// Function to translate error messages
+// Hàm dịch message
 export const translateErrorMessage = (error) => {
   if (!error) return 'Lỗi hệ thống. Vui lòng thử lại sau.';
   
@@ -56,7 +56,7 @@ export const translateErrorMessage = (error) => {
     }
   }
   
-  // Return original message if no translation found
+  // trả về message gốc nếu không có pattern nào khớp, hoặc nếu message đã là tiếng Việt
   return errorMessage || 'Lỗi hệ thống. Vui lòng thử lại sau.';
 };
 

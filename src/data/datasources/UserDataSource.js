@@ -30,14 +30,25 @@ userAxios.interceptors.request.use(
   }
 );
 
-// Thêm response interceptor để handle 401/403
+// Thêm response interceptor để handle 401/403 và token errors
 userAxios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      console.warn(`⚠️ Status ${error.response.status} - Redirecting to login`);
+    const errorMessage = error.response?.data?.message || error.message || '';
+    const errorStatus = error.response?.status;
+    const isTokenError = errorMessage.toLowerCase().includes('no user found') || 
+                         errorMessage.toLowerCase().includes('token') ||
+                         errorMessage.toLowerCase().includes('unauthorized') ||
+                         errorMessage.toLowerCase().includes('no access');
+    
+
+    // ⚠️ Redirect khi gặp token errors (idle timeout, revoked, expired)
+    // KHÔNG cần check token trong localStorage vì token có thể vẫn còn nhưng đã invalid ở server
+    if (errorStatus === 401 || errorStatus === 403 || isTokenError) {
+  
+      // Set flag để hiện toast SAU KHI redirect
       sessionStorage.setItem('auth-expired-toast', '1');
-      clearAuthStorage(); // Xóa token và user info
+      clearAuthStorage();
       window.location.href = '/';
     }
     return Promise.reject(error);

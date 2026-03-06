@@ -23,7 +23,7 @@ function CreateUser() {
   
   const { showToast } = useToast();
 
-  // Auto-scroll to password field when it appears
+  // Tự động cuộn tới ô mật khẩu khi hiển thị
   useEffect(() => {
     if (!useAutoPassword && passwordFieldRef.current) {
       const timer = setTimeout(() => {
@@ -34,7 +34,7 @@ function CreateUser() {
   }, [useAutoPassword]);
 
   const handleCreateUser = async () => {
-    // If not using auto password, password is required
+    // Nếu không dùng mật khẩu tự động thì bắt buộc nhập mật khẩu
     if (!useAutoPassword && !password.trim()) {
       showToast("Vui lòng nhập mật khẩu.", "warning");
       return;
@@ -45,7 +45,7 @@ function CreateUser() {
       let response;
       
       if (useAutoPassword) {
-        // Use auto-generated password
+        // Dùng mật khẩu được tạo tự động
         const userData = {
           fullName,
           userName,
@@ -53,7 +53,7 @@ function CreateUser() {
         };
         response = await userAPI.createUser(userData);
       } else {
-        // Use manual password
+        // Dùng mật khẩu nhập thủ công
         const userData = {
           username: userName,
           fullName,
@@ -63,7 +63,7 @@ function CreateUser() {
         response = await userAPI.createUserWithPassword(userData);
       }
 
-      // Extract generated password from response (handle multiple levels of nesting)
+      // Lấy mật khẩu sinh tự động từ response (hỗ trợ nhiều mức lồng nhau)
       let resultPassword = password;
       if (useAutoPassword) {
         resultPassword = 
@@ -77,7 +77,7 @@ function CreateUser() {
       setOpenModal(false);
       setShowPasswordModal(true);
 
-      // Reset form
+      // Đặt lại form
       setFullName("");
       setEmail("");
       setUserName("");
@@ -89,7 +89,7 @@ function CreateUser() {
   };
 
   const openModalHandler = () => {
-    // Validate username and fullName (excluding email)
+    // Kiểm tra dữ liệu tên đăng nhập và họ tên (không bắt buộc email)
     if (!userName.trim()) {
       showToast("Vui lòng nhập tên đăng nhập.", "warning");
       return;
@@ -141,21 +141,21 @@ function CreateUser() {
   const userNameChange = (e) => {
     const rawValue = e.target.value;
     
-    // Check for Vietnamese diacritical marks
+    // Kiểm tra ký tự có dấu tiếng Việt
     const hasVietnameseMark = /[\u0300-\u036f]|[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/i.test(rawValue);
     
-    // Check for whitespace
+    // Kiểm tra khoảng trắng
     const hasWhitespace = /\s/.test(rawValue);
     
-    // Show toast if user tries to input Vietnamese marks or spaces
+    // Hiển thị cảnh báo nếu nhập dấu tiếng Việt hoặc khoảng trắng
     if (hasVietnameseMark) {
-      showToast('Username không được chứa dấu tiếng Việt', 'warning');
+      showToast('Tên đăng nhập không được chứa dấu tiếng Việt', 'warning');
     }
     if (hasWhitespace) {
-      showToast('Username không được chứa khoảng trắng', 'warning');
+      showToast('Tên đăng nhập không được chứa khoảng trắng', 'warning');
     }
     
-    // Process the value: remove Vietnamese diacritical marks and whitespace
+    // Xử lý giá trị: loại bỏ dấu tiếng Việt và khoảng trắng
     const value = rawValue
       .normalize('NFD') // Tách dấu ra khỏi ký tự
       .replace(/[\u0300-\u036f]/g, '') // Xóa dấu diacritical của tiếng Việt

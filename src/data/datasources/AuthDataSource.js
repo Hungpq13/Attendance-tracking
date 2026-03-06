@@ -46,10 +46,23 @@ authAxios.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      console.warn(`⚠️ Status ${error.response.status} - Redirecting to login`);
+    const errorMessage = error.response?.data?.message || error.message || '';
+    const errorStatus = error.response?.status;
+    const isTokenError = errorMessage.toLowerCase().includes('no user found') || 
+                         errorMessage.toLowerCase().includes('token') ||
+                         errorMessage.toLowerCase().includes('unauthorized') ||
+                         errorMessage.toLowerCase().includes('no access');
+    
+
+    
+    // ⚠️ Redirect khi gặp token errors
+    // CHỈ redirect nếu có token trong storage (tránh loop khi login sai password)
+    const token = localStorage.getItem(STORAGE_TOKEN);
+    if (token && (errorStatus === 401 || errorStatus === 403 || isTokenError)) {
+   
+      // Set flag để hiện toast SAU KHI redirect
       sessionStorage.setItem('auth-expired-toast', '1');
-      clearAuthStorage(); // Xóa token và user info
+      clearAuthStorage();
       window.location.href = '/';
     }
     throw error;
